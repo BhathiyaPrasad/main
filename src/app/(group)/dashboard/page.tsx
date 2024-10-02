@@ -1,19 +1,18 @@
 "use client";
-import React, { useEffect, useRef } from "react";
-import { useState } from "react";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
+  ArcElement,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
-  ArcElement,
 } from "chart.js";
+import { useEffect, useRef, useState } from "react";
+import { Bar, Doughnut } from "react-chartjs-2";
 
 ChartJS.register(
   LineElement,
@@ -24,26 +23,18 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement,
+  ArcElement
 );
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
-import ChequeDueRem from "../components/Tables/ChequeDueRem";
-import OutofStockAlert from "../components/Tables/OutofStockAlert";
-import Header from "../components/Header";
 import { fetchInvoices } from "@/services/invoiceService";
+import Header from "../../../components/Header";
+import ChequeDueRem from "../../../components/tables/ChequeDueRem";
+import OutofStockAlert from "../../../components/tables/OutofStockAlert";
 
 export default function Dashboard() {
-
-  const [totalInvoices, setTotalInvoices] = useState([])
+  const [totalInvoices, setTotalInvoices] = useState([]);
   const currentstock = {
     labels: ["Available", "Sold"],
     datasets: [
@@ -105,13 +96,13 @@ export default function Dashboard() {
         const { total } = await fetchInvoices();
         setTotalInvoices(total);
       } catch (err) {
-        console.log('error fetching total invoices')
+        console.log("error fetching total invoices");
       } finally {
-        console.log('total invoices retrieved',totalInvoices)
+        console.log("total invoices retrieved", totalInvoices);
       }
-    }
+    };
     fetchTotalInvoices();
-  }, [])
+  }, []);
   return (
     <div className="grid w-full gap-2 p-1 overflow-scroll">
       <Header />

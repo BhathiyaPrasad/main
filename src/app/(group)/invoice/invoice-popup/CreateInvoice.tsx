@@ -8,16 +8,16 @@ import Link from "next/link";
 import { fetchCategories } from "@/services/categoryService";
 import { fetchBrands } from "@/services/brandService";
 import { fetchVariants } from "@/services/variantService";
-import {fetchStock} from "@/services/stockService";
+import { fetchStock } from "@/services/stockService";
 
 const CreateInvoice = () => {
   const [category, setCategory] = useState([]);
   const [brand, setBrands] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [variant, setVariant] = useState([]);
   const [variantSets, setVariantSet] = useState([]);
-  const [selectedVariants ,  setSelectedVariants] = useState([]);
-  const [stockData ,  setStockData] = useState([]);
+  const [selectedVariants, setSelectedVariants] = useState([]);
+  const [stockData, setStockData] = useState([]);
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
@@ -29,6 +29,7 @@ const CreateInvoice = () => {
     };
     fetchCategoryData();
   }, []);
+
   useEffect(() => {
     const fetchBrandData = async () => {
       try {
@@ -49,7 +50,7 @@ const CreateInvoice = () => {
         setVariant(variants);
         setVariantSet(variantsSet);
       } catch (err) {
-        console.log('Error fetching variants:', err);
+        console.log("Error fetching variants:", err);
       }
     };
 
@@ -60,18 +61,16 @@ const CreateInvoice = () => {
     const fetchStockData = async () => {
       if (!selectedCategory && !selectedVariants) return; // Avoid making the call if no category nor variant is selected
       try {
-        const { stock } = await fetchStock(selectedCategory,selectedVariants); // Use selectedCategory & variant directly
-        console.log(stock)
+        const { stock } = await fetchStock(selectedCategory, selectedVariants); // Use selectedCategory & variant directly
+        console.log(stock);
         setStockData(stock);
-       
       } catch (err) {
-        console.log('Error fetching variants:', err);
+        console.log("Error fetching variants:", err);
       }
     };
 
     fetchStockData(); // Call the function to fetch data
   }, [selectedCategory, selectedVariants]);
-
 
   const [rows, setRows] = useState([
     {
@@ -142,13 +141,13 @@ const CreateInvoice = () => {
       i === index ? { ...row, [name]: value } : row
     );
     setRows(updatedRows);
-    console.log(name)
+    console.log(name);
     if (name === "category") {
       setSelectedCategory(value);
       // to fetch variants based on the category
     }
     if (name === "type") {
-       setSelectedVariants(value);
+      setSelectedVariants(value);
       // to fetch variants based on the category
     }
   };
@@ -161,11 +160,11 @@ const CreateInvoice = () => {
     );
     setServices(updatedServices);
   };
-  console.log('this is category',selectedCategory)
-  console.log(variantSets)
-  console.log('selected varitns are',selectedVariants);
-  console.log('this is stock',stockData);
-  
+  console.log("this is category", selectedCategory);
+  console.log(variantSets);
+  console.log("selected varitns are", selectedVariants);
+  console.log("this is stock", stockData);
+
   return (
     <div>
       {/* Header Table */}
@@ -321,92 +320,92 @@ const CreateInvoice = () => {
                   {variant.map((variant) => (
                     <option key={variant.id} value={variant.name}>
                       {variant.name}
-                    </option>))}
+                    </option>
+                  ))}
                 </select>
               </td>
               <td className="px-1 py-1 w-auto">
-    <select
-        name="type"
-        value={row.type}  // Ensure row.type is being properly updated
-        onChange={(e) => handleInputChange(index, e)}
-    >
-        <option value="">Select Type</option>
-        {variantSets && variantSets[0]?.map((v) => (  // Access the first inner array
-            <option key={v.id} value={v.id}>  {/* Use v.id as the key and value */}
-                {v.name}  {/* Output the name field from the object */}
-            </option>
-        ))}
-    </select>
-</td>
+                <select
+                  name="type"
+                  value={row.type} // Ensure row.type is being properly updated
+                  onChange={(e) => handleInputChange(index, e)}
+                >
+                  <option value="">Select Type</option>
+                  {variantSets &&
+                    variantSets[0]?.map(
+                      (
+                        v // Access the first inner array
+                      ) => (
+                        <option key={v.id} value={v.id}>
+                          {" "}
+                          {/* Use v.id as the key and value */}
+                          {v.name} {/* Output the name field from the object */}
+                        </option>
+                      )
+                    )}
+                </select>
+              </td>
 
-  
-  
-<td className="px-1 py-1 w-auto">
-        <div
-            name="stock"
-            value={row.quantity}
-            onChange={(e) => handleInputChange(index, e)}
-          >
-            
-            {stockData.map((s) => (
-               <input
-               key={s.id}
-               type="number"
-               name="quantity"
-               className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-               min={1}
-              //  value={s.buyingPrice}
-               onChange={(e) => handleInputChange(index, e)}
-               placeholder={s.buyingPrice}
-             />
-            ))}
-          </div>
-
-</td>
-<td className="px-1 py-1 w-auto">
-        <div
-            name="stock"
-            value={row.buyingPrice}
-            onChange={(e) => handleInputChange(index, e)}
-          >
-            
-            {stockData.map((s) => (
-               <input
-               key={s.id}
-               type="number"
-               name="price"
-               className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-               min={1}
-              //  value={s.sellingPrice}
-               onChange={(e) => handleInputChange(index, e)}
-               placeholder={s.buyingPrice}
-             />
-            ))}
-          </div>
-
-</td>
-<td className="px-1 py-1 w-auto">
-        <div
-            name="stock"
-            value={row.sellingPrice}
-            onChange={(e) => handleInputChange(index, e)}
-          >
-            
-            {stockData.map((s) => (
-               <input
-               key={s.id}
-               type="number"
-               name="price"
-               className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-               min={1}
-              //  value={s.sellingPrice}
-               onChange={(e) => handleInputChange(index, e)}
-               placeholder={s.sellingPrice}
-             />
-            ))}
-          </div>
-
-</td>
+              <td className="px-1 py-1 w-auto">
+                <div
+                  name="stock"
+                  value={row.quantity}
+                  onChange={(e) => handleInputChange(index, e)}
+                >
+                  {stockData.map((s) => (
+                    <input
+                      key={s.id}
+                      type="number"
+                      name="quantity"
+                      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min={1}
+                      //  value={s.buyingPrice}
+                      onChange={(e) => handleInputChange(index, e)}
+                      placeholder={s.buyingPrice}
+                    />
+                  ))}
+                </div>
+              </td>
+              <td className="px-1 py-1 w-auto">
+                <div
+                  name="stock"
+                  value={row.buyingPrice}
+                  onChange={(e) => handleInputChange(index, e)}
+                >
+                  {stockData.map((s) => (
+                    <input
+                      key={s.id}
+                      type="number"
+                      name="price"
+                      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min={1}
+                      //  value={s.sellingPrice}
+                      onChange={(e) => handleInputChange(index, e)}
+                      placeholder={s.buyingPrice}
+                    />
+                  ))}
+                </div>
+              </td>
+              <td className="px-1 py-1 w-auto">
+                <div
+                  name="stock"
+                  value={row.sellingPrice}
+                  onChange={(e) => handleInputChange(index, e)}
+                >
+                  {stockData.map((s) => (
+                    <input
+                      key={s.id}
+                      type="number"
+                      name="price"
+                      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min={1}
+                      //  value={s.sellingPrice}
+                      onChange={(e) => handleInputChange(index, e)}
+                      placeholder={s.sellingPrice}
+                    />
+                  ))}
+                </div>
+              </td>
               <td className="px-1 py-1 w-auto">
                 <input
                   type="text"

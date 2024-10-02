@@ -1,7 +1,6 @@
-import QueryProvider from "@/components/QueryProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../globals.css";
+import Navbar from "../../components/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,10 +21,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <QueryProvider>{children}</QueryProvider>
-      </body>
-    </html>
+    <div className="flex flex-col h-screen">
+      {/* Side Navigation + Content */}
+      <div className="flex overflow-hidden grow">
+        {/* Side Navigation */}
+        <Navbar />
+        {/* Content */}
+        <div
+          className={`flex w-full rounded bg-muted duration-300 transition-all  lg:ms-[280px] : ms-0 p-3 lg:p-5`}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }

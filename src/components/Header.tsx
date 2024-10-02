@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 const Header = () => {
   const userName = "Asiri";
   const userProfilePhoto = "/images/Logo.jpeg";

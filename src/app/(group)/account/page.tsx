@@ -10,12 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import ChequeDueRem from "../components/Tables/ChequeDueRem";
-import OutofStockAlert from "../components/Tables/OutofStockAlert";
-import Header from "../components/Header";
-import InvoiceTable from "../components/Tables/InvoiceTable";
-import CreditDueRem from "../components/Tables/CreditDueRem";
-import CreditnDebitRepo from "../components/Tables/CreditnDebitRepo";
+import ChequeDueRem from "../../components/tables/ChequeDueRem";
+import OutofStockAlert from "../../components/tables/OutofStockAlert";
+import Header from "../../components/Header";
+import InvoiceTable from "../../components/tables/InvoiceTable";
+import CreditDueRem from "../../components/tables/CreditDueRem";
+import CreditnDebitRepo from "../../components/tables/CreditnDebitRepo";
 import {
   ArrowRight,
   ChevronDown,
@@ -24,9 +24,9 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import Top from "../components/Top";
+import Top from "../../components/Top";
 import { FaArrowRightLong } from "react-icons/fa6";
-import PreviousMonthRepo from "../components/Tables/PreviousMonthRepo";
+import PreviousMonthRepo from "../../components/tables/PreviousMonthRepo";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import ThisMonthIncomeReport from "./popups/ThisMonthIncomeReport";
 import ThisMonthExpensesReport from "./popups/ThisMonthExpensesReport";
@@ -191,9 +191,9 @@ export default function Account() {
           <Dialog>
             <DialogTrigger>
               <div className="px-4">
-              <button className="flex items-center px-3 py-5 space-x-3 rounded-md h-10 w-fit bg-blue-500 text-sm text-white shadow-sm hover:bg-blue-600 hover:text-white">
-                <span>See Profit & Loss Report</span>
-              </button>
+                <button className="flex items-center px-3 py-5 space-x-3 rounded-md h-10 w-fit bg-blue-500 text-sm text-white shadow-sm hover:bg-blue-600 hover:text-white">
+                  <span>See Profit & Loss Report</span>
+                </button>
               </div>
             </DialogTrigger>
             <DialogContent className="w-fit h-auto max-h-screen max-w-3/4 overflow-scroll">

@@ -1,15 +1,12 @@
-import React from "react";
-import { FaArrowRightLong } from "react-icons/fa6";
-import Top from "../components/Top";
-import StockTable from "../components/Tables/StockTable";
-import ItmTable from "../components/Tables/ItmTable";
-import ExpenTable from "../components/Tables/ExpenTable";
-import { CreateCategory } from "./popups/CreateCategory";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import AddNewSubCategory from "./popups/CreateBrand";
-import GRN from "./popups/GRN";
+import { FaArrowRightLong } from "react-icons/fa6";
+import Top from "../../../components/Top";
+import ExpenTable from "../../../components/tables/ExpenTable";
+import ItmTable from "../../../components/tables/ItmTable";
+import StockTable from "../../../components/tables/StockTable";
 import CreateBrand from "./popups/CreateBrand";
+import { CreateCategory } from "./popups/CreateCategory";
+import GRN from "./popups/GRN";
 
 export default function item() {
   return (

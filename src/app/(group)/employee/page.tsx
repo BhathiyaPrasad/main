@@ -1,14 +1,12 @@
-import React from "react";
-import CustTable from "../components/Tables/CustTable";
-import { FaArrowRightLong } from "react-icons/fa6";
-import Top from "../components/Top";
-import EmpDetailsTable from "../components/Tables/EmpDetailsTable";
-import SalaryManagTable from "../components/Tables/SalaryManagTable";
-import { UserRoundPlus } from "lucide-react";
-import AttendanceTable from "../components/Tables/AttendanceTable";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import AttendanceMark from "./popups/AttendanceMark";
+import { UserRoundPlus } from "lucide-react";
+import { FaArrowRightLong } from "react-icons/fa6";
+import Top from "../../../components/Top";
+import AttendanceTable from "../../../components/tables/AttendanceTable";
+import EmpDetailsTable from "../../../components/tables/EmpDetailsTable";
+import SalaryManagTable from "../../../components/tables/SalaryManagTable";
 import AddNewEmployeer from "./popups/AddNewEmployeer";
+import AttendanceMark from "./popups/AttendanceMark";
 
 export default function Employee() {
   return (

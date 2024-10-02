@@ -1,33 +1,11 @@
 "use client";
-import React, { useRef } from "react";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
-import ChequeDueRem from "../components/Tables/ChequeDueRem";
-import OutofStockAlert from "../components/Tables/OutofStockAlert";
-import Header from "../components/Header";
-import InvoiceTable from "../components/Tables/InvoiceTable";
-import CreditDueRem from "../components/Tables/CreditDueRem";
-import CreditnDebitRepo from "../components/Tables/CreditnDebitRepo";
-import { ArrowRight } from "lucide-react";
-import Top from "../components/Top";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import CreditnDebitRepo from "../../../components/tables/CreditnDebitRepo";
+import InvoiceTable from "../../../components/tables/InvoiceTable";
+import Top from "../../../components/Top";
 import CreateInvoice from "./invoice-popup/CreateInvoice";
 
 export default function Invoice() {
