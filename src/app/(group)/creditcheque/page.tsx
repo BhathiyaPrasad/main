@@ -1,15 +1,15 @@
 import React from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
-import Top from "../components/Top";
-import StockTable from "../components/Tables/StockTable";
-import ItmTable from "../components/Tables/ItmTable";
-import ExpenTable from "../components/Tables/ExpenTable";
+import Top from "../../components/Top";
+import StockTable from "../../components/tables/StockTable";
+import ItmTable from "../../components/tables/ItmTable";
+import ExpenTable from "../../components/tables/ExpenTable";
 import { Card, CardContent } from "@/components/ui/card";
-import ChequeDueRem from "../components/Tables/ChequeDueRem";
-import CreditTable from "../components/Tables/CreditTable";
-import CreditDueRem from "../components/Tables/CreditDueRem";
-import ChequeTable from "../components/Tables/ChequeTable";
-import RjtChequeTable from "../components/Tables/RjtChequeTable";
+import ChequeDueRem from "../../components/tables/ChequeDueRem";
+import CreditTable from "../../components/tables/CreditTable";
+import CreditDueRem from "../../components/tables/CreditDueRem";
+import ChequeTable from "../../components/tables/ChequeTable";
+import RjtChequeTable from "../../components/tables/RjtChequeTable";
 
 export default function CreditCheque() {
   return (

@@ -1,8 +1,7 @@
-import React from "react";
-import { FaArrowRightLong } from "react-icons/fa6";
-import Top from "../components/Top";
-import SupTable from "../components/Tables/SupTable";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { FaArrowRightLong } from "react-icons/fa6";
+import Top from "../../../components/Top";
+import SupTable from "../../../components/tables/SupTable";
 import AddNewSupplierDetails from "./popups/AddNewSupplierDetails";
 
 export default function supplier() {
@@ -21,10 +20,10 @@ export default function supplier() {
       <div className="px-2 mb-5">
         <Dialog>
           <DialogTrigger>
-          <div className="flex items-center px-3 py-1 space-x-3 rounded-md h-10 w-40 bg-blue-500 text-sm text-white shadow-sm hover:bg-blue-600 hover:text-white">
-          <span>New Supplier</span>
-          <FaArrowRightLong className="h-10 w-4" />
-        </div>
+            <div className="flex items-center px-3 py-1 space-x-3 rounded-md h-10 w-40 bg-blue-500 text-sm text-white shadow-sm hover:bg-blue-600 hover:text-white">
+              <span>New Supplier</span>
+              <FaArrowRightLong className="h-10 w-4" />
+            </div>
           </DialogTrigger>
           <DialogContent className="w-fit h-auto max-h-screen max-w-3/4 overflow-scroll">
             <AddNewSupplierDetails />
