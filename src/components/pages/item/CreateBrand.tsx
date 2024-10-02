@@ -1,5 +1,4 @@
-'use client'
-import * as React from "react";
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,8 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form"; 
 import { addBrand } from "@/services/brandService";
+import { useForm } from "react-hook-form";
 
 interface FormValues {
   brandname: string;
@@ -23,11 +22,11 @@ export default function CreateBrand() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormValues>(); 
+  } = useForm<FormValues>();
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const brandData = {name: data.brandname}
+      const brandData = { name: data.brandname };
       await addBrand(brandData);
       console.log("Brand added successfully:", brandData);
       reset(); // Reset the form after submission

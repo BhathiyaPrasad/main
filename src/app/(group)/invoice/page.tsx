@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { FaArrowRightLong } from "react-icons/fa6";
+import CreateInvoice from "../../../components/pages/invoice/CreateInvoice";
 import CreditnDebitRepo from "../../../components/tables/CreditnDebitRepo";
 import InvoiceTable from "../../../components/tables/InvoiceTable";
 import Top from "../../../components/Top";
-import CreateInvoice from "./invoice-popup/CreateInvoice";
 
 export default function Invoice() {
   return (

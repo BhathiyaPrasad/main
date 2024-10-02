@@ -1,4 +1,4 @@
-import { CreateCatforBattery } from "./item/popups/CreateCatforBattery";
+import { CreateCatforBattery } from "../../components/pages/item/CreateCatforBattery";
 
 export default function Home() {
   return (

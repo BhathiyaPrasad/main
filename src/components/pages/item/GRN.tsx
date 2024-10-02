@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
-import { AiFillCloseSquare } from "react-icons/ai";
 import { PlusSquare } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
+import { AiFillCloseSquare } from "react-icons/ai";
 
 interface FormValues {
   supplierName: string;
@@ -30,7 +29,19 @@ const CreateInvoice = () => {
     control,
   } = useForm<FormValues>({
     defaultValues: {
-      items: [{ Category: "", brand: "", variant: "", value: "", quantity: 1, grnType: "General", costPrice: "", amount: "", sellingPrice: "" }],
+      items: [
+        {
+          Category: "",
+          brand: "",
+          variant: "",
+          value: "",
+          quantity: 1,
+          grnType: "General",
+          costPrice: "",
+          amount: "",
+          sellingPrice: "",
+        },
+      ],
     },
   });
 
@@ -68,7 +79,9 @@ const CreateInvoice = () => {
                     <input
                       type="text"
                       className="w-64 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      {...register("supplierName", { required: "Supplier Name is required" })}
+                      {...register("supplierName", {
+                        required: "Supplier Name is required",
+                      })}
                     />
                     {errors.supplierName && (
                       <p className="text-red-500 text-xs mt-1">
@@ -112,7 +125,9 @@ const CreateInvoice = () => {
                     <input
                       type="tel"
                       className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      {...register("orderRecoveredBy", { required: "Order Recovered By is required" })}
+                      {...register("orderRecoveredBy", {
+                        required: "Order Recovered By is required",
+                      })}
                     />
                     {errors.orderRecoveredBy && (
                       <p className="text-red-500 text-xs mt-1">
@@ -147,15 +162,33 @@ const CreateInvoice = () => {
         <table className="w-auto">
           <thead>
             <tr>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Category</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Brand</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Variant</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Value</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Qty</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">GRN Type</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Cost Price (Rs.)</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Amount (Rs.)</th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">Selling Price (Rs.)</th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Category
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Brand
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Variant
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Value
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Qty
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                GRN Type
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Cost Price (Rs.)
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Amount (Rs.)
+              </th>
+              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
+                Selling Price (Rs.)
+              </th>
               <th className="px-1 py-1"></th>
             </tr>
           </thead>
@@ -165,7 +198,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <select
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.Category`, { required: "Category is required" })}
+                    {...register(`items.${index}.Category`, {
+                      required: "Category is required",
+                    })}
                   >
                     <option value="">Select Category</option>
                     {/* Add categories here */}
@@ -179,7 +214,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <select
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.brand`, { required: "Brand is required" })}
+                    {...register(`items.${index}.brand`, {
+                      required: "Brand is required",
+                    })}
                   >
                     <option value="">Select Brand</option>
                     {/* Add brands here */}
@@ -193,7 +230,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <select
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.variant`, { required: "Variant is required" })}
+                    {...register(`items.${index}.variant`, {
+                      required: "Variant is required",
+                    })}
                   >
                     <option value="">Select Variant</option>
                     {/* Add brands here */}
@@ -207,7 +246,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <select
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.value`, { required: "Value is required" })}
+                    {...register(`items.${index}.value`, {
+                      required: "Value is required",
+                    })}
                   >
                     <option value="">Select Value</option>
                     {/* Add brands here */}
@@ -222,7 +263,9 @@ const CreateInvoice = () => {
                   <input
                     type="number"
                     className="w-12 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.quantity`, { required: "Quantity is required" })}
+                    {...register(`items.${index}.quantity`, {
+                      required: "Quantity is required",
+                    })}
                   />
                   {errors.items?.[index]?.quantity && (
                     <p className="text-red-500 text-xs mt-1">
@@ -233,7 +276,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <select
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.grnType`, { required: "GRN Type is required" })}
+                    {...register(`items.${index}.grnType`, {
+                      required: "GRN Type is required",
+                    })}
                   >
                     <option value="General">General</option>
                     <option value="Special">Style</option>
@@ -247,7 +292,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <input
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.costPrice`, { required: "Cost Price is required" })}
+                    {...register(`items.${index}.costPrice`, {
+                      required: "Cost Price is required",
+                    })}
                   />
                   {errors.items?.[index]?.costPrice && (
                     <p className="text-red-500 text-xs mt-1">
@@ -258,7 +305,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <input
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.amount`, { required: "Amount is required" })}
+                    {...register(`items.${index}.amount`, {
+                      required: "Amount is required",
+                    })}
                   />
                   {errors.items?.[index]?.amount && (
                     <p className="text-red-500 text-xs mt-1">
@@ -269,7 +318,9 @@ const CreateInvoice = () => {
                 <td className="px-1 py-1 w-auto">
                   <input
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.sellingPrice`, { required: "Selling Price is required" })}
+                    {...register(`items.${index}.sellingPrice`, {
+                      required: "Selling Price is required",
+                    })}
                   />
                   {errors.items?.[index]?.sellingPrice && (
                     <p className="text-red-500 text-xs mt-1">
@@ -278,7 +329,11 @@ const CreateInvoice = () => {
                   )}
                 </td>
                 <td className="px-1 py-1">
-                  <button type="button" onClick={() => remove(index)} className="text-red-500">
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="text-red-500"
+                  >
                     <AiFillCloseSquare size={20} />
                   </button>
                 </td>
@@ -289,17 +344,27 @@ const CreateInvoice = () => {
 
         <button
           type="button"
-          onClick={() => append({ Category: "", brand: "", variant: "", value: "", quantity: 1, grnType: "General", costPrice: "", amount: "", sellingPrice: "" })}
+          onClick={() =>
+            append({
+              Category: "",
+              brand: "",
+              variant: "",
+              value: "",
+              quantity: 1,
+              grnType: "General",
+              costPrice: "",
+              amount: "",
+              sellingPrice: "",
+            })
+          }
           className="mt-4 flex items-center justify-center text-blue-500"
         >
           <PlusSquare className="mr-2" />
           Add Row
         </button>
 
-        
-
-          {/* Footer Section */}
-          <div className="flex flex-row justify-between">
+        {/* Footer Section */}
+        <div className="flex flex-row justify-between">
           <div className="flex-col p-5 w-full">
             <label className="block text-gray-700 text-sm mb-2 p-2">Note</label>
             <textarea
@@ -340,7 +405,7 @@ const CreateInvoice = () => {
               </div>
             </div>
           </div>
-          </div>
+        </div>
       </form>
     </div>
   );

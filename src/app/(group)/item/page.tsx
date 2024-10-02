@@ -1,12 +1,12 @@
+import CreateBrand from "@/components/pages/item/CreateBrand";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { FaArrowRightLong } from "react-icons/fa6";
 import Top from "../../../components/Top";
+import { CreateCategory } from "../../../components/pages/item/CreateCategory";
+import GRN from "../../../components/pages/item/GRN";
 import ExpenTable from "../../../components/tables/ExpenTable";
 import ItmTable from "../../../components/tables/ItmTable";
 import StockTable from "../../../components/tables/StockTable";
-import CreateBrand from "./popups/CreateBrand";
-import { CreateCategory } from "./popups/CreateCategory";
-import GRN from "./popups/GRN";
 
 export default function item() {
   return (
