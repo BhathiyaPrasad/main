@@ -1,5 +1,9 @@
 "use client";
+import { fetchBrands } from "@/services/brandService";
+import { fetchCategories } from "@/services/categoryService";
+import { fetchVariants } from "@/services/variantService";
 import { PlusSquare } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { AiFillCloseSquare } from "react-icons/ai";
 
@@ -20,8 +24,44 @@ interface FormValues {
     sellingPrice: string;
   }[];
 }
+interface Supplier {
+  name: string;
+  code: string;
+  id: string;
+}
+interface Brand {
+  name: string;
+  code: string;
+  id: string;
+}
+interface Category {
+  name: string;
+  code: string;
+  id: string;
+}
+
+interface Variant {
+  name: string;
+  code: string;
+  id: string;
+}
+interface VariantSets {
+  name: string;
+  code: string;
+  id: string;
+}
+
+
 
 const CreateInvoice = () => {
+  const [supplier ,  setSupplier] = useState<Supplier[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const [brand, setBrand] = useState<Brand[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [variant, setVariant] = useState<Variant[]>([]);
+  const [variantSets, setVariantSet] = useState<VariantSets[]>([]);
+  const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState("");
   const {
     register,
     handleSubmit,
@@ -44,6 +84,61 @@ const CreateInvoice = () => {
       ],
     },
   });
+
+ // Fetch supplier data from the API
+ useEffect(() => {
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetchSuppliers(); // Fetch suppliers from the API
+      setSupplier(response);
+    } catch (error) {
+      console.log("Failed to fetch suppliers." , error);
+    } 
+  };
+
+  fetchSuppliers();
+}, []);
+
+useEffect(() => {
+  const fetchCategoryData = async () => {
+    try {
+      const { categories } = await fetchCategories();
+      setCategory(categories);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  fetchCategoryData();
+}, []);
+
+useEffect(() => {
+  const fetchBrandData = async () => {
+    try {
+      const { brands } = await fetchBrands();
+      setBrand(brands);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  fetchBrandData();
+}, []);
+
+useEffect(() => {
+  const fetchVariantData = async () => {
+    if (!selectedCategory) return; // Avoid making the call if no category is selected
+    try {
+      const { variants, variantsSet } = await fetchVariants(selectedCategory); // Use selectedCategory directly
+      setVariant(variants);
+      setVariantSet(variantsSet);
+    } catch (err) {
+      console.log("Error fetching variants:", err);
+    }
+  };
+
+  fetchVariantData(); // Call the function to fetch data
+}, [selectedCategory]);
+
+
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -196,37 +291,47 @@ const CreateInvoice = () => {
             {fields.map((field, index) => (
               <tr key={field.id}>
                 <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.Category`, {
-                      required: "Category is required",
-                    })}
-                  >
-                    <option value="">Select Category</option>
-                    {/* Add categories here */}
-                  </select>
-                  {errors.items?.[index]?.Category && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.Category?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.brand`, {
-                      required: "Brand is required",
-                    })}
-                  >
-                    <option value="">Select Brand</option>
-                    {/* Add brands here */}
-                  </select>
-                  {errors.items?.[index]?.brand && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.brand?.message}
-                    </p>
-                  )}
-                </td>
+                <select
+                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                {...register(`items.${index}.Category`, {
+                  required: "Category is required",
+                })}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="">Select Category</option>
+                {category.map((item) => (
+                  <option key={item.id} value={item.id}>
+                   {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                  </option>
+                ))}
+              </select>
+              {/* {errors.items?.[index]?.Category && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.items[index]?.Category?.message}
+                </p>
+              )} */}
+            </td>
+            <td className="px-1 py-1 w-auto">
+              <select
+                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                {...register(`items.${index}.brand`, {
+                  required: "Brand is required",
+                })}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+              >
+                <option value="">Select Brand</option>
+                {brand.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                  </option>
+                ))}
+              </select>
+              {/* {errors.items?.[index]?.brand && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.items[index]?.brand?.message}
+                </p> */}
+              )}
+            </td>
                 <td className="px-1 py-1 w-auto">
                   <select
                     className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -237,28 +342,33 @@ const CreateInvoice = () => {
                     <option value="">Select Variant</option>
                     {/* Add brands here */}
                   </select>
-                  {errors.items?.[index]?.variant && (
+                  {/* {errors.items?.[index]?.variant && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.variant?.message}
                     </p>
-                  )}
+                  )} */}
                 </td>
                 <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.value`, {
-                      required: "Value is required",
-                    })}
-                  >
-                    <option value="">Select Value</option>
-                    {/* Add brands here */}
-                  </select>
-                  {errors.items?.[index]?.value && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.value?.message}
-                    </p>
-                  )}
-                </td>
+              <select
+                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                {...register(`items.${index}.variant`, {
+                  required: "Variant is required",
+                })}
+                onChange={(e) => setSelectedVariants(e.target.value)}
+              >
+                <option value="">Select Variant</option>
+                {variantSets.map((item) => (
+                  <option key={item.id} value={item.id}>
+                 {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                  </option>
+                ))}
+              </select>
+              {/* {errors.items?.[index]?.variant && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.items[index]?.variant?.message}
+                </p>
+              )} */}
+            </td>
                 <td className="px-1 py-1 w-auto">
                   <input
                     type="number"
@@ -267,11 +377,11 @@ const CreateInvoice = () => {
                       required: "Quantity is required",
                     })}
                   />
-                  {errors.items?.[index]?.quantity && (
+                  {/* {errors.items?.[index]?.quantity && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.quantity?.message}
                     </p>
-                  )}
+                  )} */}
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <select
@@ -283,11 +393,11 @@ const CreateInvoice = () => {
                     <option value="General">General</option>
                     <option value="Special">Style</option>
                   </select>
-                  {errors.items?.[index]?.grnType && (
+                  {/* {errors.items?.[index]?.grnType && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.grnType?.message}
                     </p>
-                  )}
+                  )} */}
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <input
@@ -296,11 +406,11 @@ const CreateInvoice = () => {
                       required: "Cost Price is required",
                     })}
                   />
-                  {errors.items?.[index]?.costPrice && (
+                  {/* {errors.items?.[index]?.costPrice && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.costPrice?.message}
                     </p>
-                  )}
+                  )} */}
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <input
@@ -309,11 +419,11 @@ const CreateInvoice = () => {
                       required: "Amount is required",
                     })}
                   />
-                  {errors.items?.[index]?.amount && (
+                  {/* {errors.items?.[index]?.amount && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.amount?.message}
-                    </p>
-                  )}
+                    </p> )} */}
+                  
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <input

@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { fetchBrands } from "@/services/brandService";
 import { fetchCategories } from "@/services/categoryService";
+import { fetchCustomers } from "@/services/customerServices";
 import { fetchStock } from "@/services/stockService";
 import { fetchVariants } from "@/services/variantService";
 import { format } from "date-fns";
@@ -48,10 +49,16 @@ type InvoiceItem = {
   discount: string;
 };
 
-type Customer = {
-  name: string;
-  phone: string;
-};
+interface Customer {
+  id:string,
+  name:string,
+  address:string,
+  phone:string,
+  email:string,
+  description:string,
+  createdAt:string,
+  updatedAt:string
+}
 
 const INITIAL_INVOICE_ITEM = {
   categoryId: "banana",
@@ -92,18 +99,54 @@ const CUSTOMERS = [
   },
 ];
 
+interface Brand {
+  name: string;
+  code: string;
+  id: string;
+}
+interface Category {
+  name: string;
+  code: string;
+  id: string;
+}
+
+interface Variant {
+  name: string;
+  code: string;
+  id: string;
+}
+interface VariantSets {
+  name: string;
+  code: string;
+  id: string;
+}
+
 export default function Invoice() {
   const [isMounted, setIsMounted] = useState(false);
-  const [category, setCategory] = useState([]);
-  const [brand, setBrands] = useState([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const [brand, setBrand] = useState<Brand[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [variant, setVariant] = useState([]);
-  const [variantSets, setVariantSet] = useState([]);
+  const [variant, setVariant] = useState<Variant[]>([]);
+  const [variantSets, setVariantSet] = useState<VariantSets[]>([]);
   const [selectedVariants, setSelectedVariants] = useState([]);
   const [stockData, setStockData] = useState([]);
-
+  const [customer, setCustomer] = useState<Customer[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      try {
+        const customers = await fetchCustomers(); // Use selectedCategory directly
+        setCustomer(customers);
+      } catch (err) {
+        console.log("Error fetching customers:", err);
+      }
+    };
+
+    fetchCustomerData(); // Call the function to fetch data
   }, []);
 
   useEffect(() => {
@@ -122,7 +165,7 @@ export default function Invoice() {
     const fetchBrandData = async () => {
       try {
         const { brands } = await fetchBrands();
-        setBrands(brands);
+        setBrand(brands);
       } catch (err) {
         console.log(err);
       }
@@ -223,7 +266,7 @@ export default function Invoice() {
                       : "opacity-0 -z-10"
                   )}
                 >
-                  {CUSTOMERS.map((customer) => (
+                  {CUSTOMERS.map((customer:any) => (
                     <li key={customer.phone}>
                       <button
                         className="py-1 text-start"
@@ -263,118 +306,126 @@ export default function Invoice() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {invoiceItems.map((row, i) => (
-                <TableRow key={row.id} className="border-none">
-                  {/* category cell */}
-                  <TableCell className="py-2">
-                    <Select
-                      onValueChange={(value) =>
-                        updateInvoiceItems(i, {
-                          ...INITIAL_INVOICE_ITEM,
-                          categoryId: value,
-                        })
-                      }
-                      value={row.categoryId}
-                      defaultValue={row.categoryId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a fruit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="apple">Apple</SelectItem>
-                          <SelectItem value="banana">Banana</SelectItem>
-                          <SelectItem value="blueberry">Blueberry</SelectItem>
-                          <SelectItem value="grapes">Grapes</SelectItem>
-                          <SelectItem value="pineapple">Pineapple</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  {/* brand cell */}
-                  <TableCell className="py-2">
-                    <Select
-                      onValueChange={(value) =>
-                        updateInvoiceItems(i, {
-                          ...INITIAL_INVOICE_ITEM,
-                          brandId: value,
-                        })
-                      }
-                      value={row.brandId}
-                      defaultValue={row.brandId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a fruit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="apple">Apple</SelectItem>
-                          <SelectItem value="banana">Banana</SelectItem>
-                          <SelectItem value="blueberry">Blueberry</SelectItem>
-                          <SelectItem value="grapes">Grapes</SelectItem>
-                          <SelectItem value="pineapple">Pineapple</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  {/* variants cell */}
-                  <TableCell className="py-2">
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a fruit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="apple">Apple</SelectItem>
-                          <SelectItem value="banana">Banana</SelectItem>
-                          <SelectItem value="blueberry">Blueberry</SelectItem>
-                          <SelectItem value="grapes">Grapes</SelectItem>
-                          <SelectItem value="pineapple">Pineapple</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="text-right py-2">0</TableCell>
-                  <TableCell className="text-right py-2">0</TableCell>
-                  <TableCell className="text-right py-2">0</TableCell>
-                  <TableCell className="py-2">
-                    <Input
-                      onChange={(e) =>
-                        updateInvoiceItems(i, {
-                          ...INITIAL_INVOICE_ITEM,
-                          discount: e.target.value,
-                        })
-                      }
-                      className="text-right"
-                      defaultValue={row.discount}
-                      value={row.discount}
-                    />
-                  </TableCell>
-                  <TableCell className="py-2">
-                    <button
-                      className="float-end"
-                      onClick={() => {
-                        if (invoiceItems.length > 1) removeInvoiceItems(i);
-                      }}
-                    >
-                      <X className="text-destructive w-5 h-5" />
-                    </button>
-                  </TableCell>
-                </TableRow>
+  {invoiceItems.map((row, i) => (
+    <TableRow key={`${row.id}-${i}`} className="border-none">
+      {/* category cell */}
+      <TableCell className="py-2">
+        <Select
+          onValueChange={(value) => {
+            setSelectedCategory(value);
+            updateInvoiceItems(i, {
+              ...row, // Only update the categoryId
+              categoryId: value,
+            });
+          }}
+          value={row.categoryId} // Controlled input
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {category.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                </SelectItem>
               ))}
-              <TableRow className="hover:bg-background">
-                {/* category cell */}
-                <TableCell colSpan={7} className="pt-0">
-                  <Button
-                    variant="outline"
-                    className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
-                    onClick={() => appendInvoiceItems(INITIAL_INVOICE_ITEM)}
-                  >
-                    Add Item +
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </TableCell>
+      {/* brand cell */}
+      <TableCell className="py-2">
+        <Select
+          onValueChange={(value) =>
+            updateInvoiceItems(i, {
+              ...row, // Only update the brandId
+              brandId: value,
+            })
+          }
+          value={row.brandId} // Controlled input
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a brand" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {brand.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </TableCell>
+      {/* variants cell */}
+      <TableCell className="py-2">
+        <Select
+          onValueChange={(value) =>{
+            setSelectedVariants(value)
+            updateInvoiceItems(i, {
+              ...row, // Only update the variantId
+              variantId: value,
+            })
+          }}
+          value={row.variantId} // Controlled input
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a variant" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {variant.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="text-right py-2">0</TableCell>
+      <TableCell className="text-right py-2">0</TableCell>
+      <TableCell className="text-right py-2">0</TableCell>
+      <TableCell className="py-2">
+        <Input
+          onChange={(e) =>
+            updateInvoiceItems(i, {
+              ...row, // Only update the discount field
+              discount: e.target.value,
+            })
+          }
+          className="text-right"
+          value={row.discount} // Controlled input
+        />
+      </TableCell>
+      <TableCell className="py-2">
+        <button
+          className="float-right"
+          onClick={() => {
+            if (invoiceItems.length > 1) removeInvoiceItems(i);
+          }}
+        >
+          <X className="text-destructive w-5 h-5" />
+        </button>
+      </TableCell>
+    </TableRow>
+  ))}
+  <TableRow className="hover:bg-background">
+    {/* category cell */}
+    <TableCell colSpan={7} className="pt-0">
+      <Button
+        variant="outline"
+        className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
+        onClick={() => appendInvoiceItems(INITIAL_INVOICE_ITEM)}
+      >
+        Add Item +
+      </Button>
+    </TableCell>
+  </TableRow>
+</TableBody>
+
           </Table>
         </div>
 
