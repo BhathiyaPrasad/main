@@ -1,23 +1,59 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import { AiFillCloseSquare } from "react-icons/ai";
-import { PlusSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
-import { fetchCategories } from "@/services/categoryService";
 import { fetchBrands } from "@/services/brandService";
-import { fetchVariants } from "@/services/variantService";
+import { fetchCategories } from "@/services/categoryService";
 import { fetchStock } from "@/services/stockService";
+import { fetchVariants } from "@/services/variantService";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { AiFillCloseSquare } from "react-icons/ai";
+import { FaPlus } from "react-icons/fa";
+
+interface Item {
+  id: string;
+  category: string;
+  brand: string;
+  variant: string;
+  type: string;
+  quantity: number;
+  rate: string;
+  amount: string;
+  discount: string;
+  sellingPrice:string;
+  buyingPrice:string;
+}
+
+interface StockData {
+  id: string;
+  sellingPrice:string;
+  buyingPrice:string;
+}
 
 const CreateInvoice = () => {
-  const [category, setCategory] = useState([]);
-  const [brand, setBrands] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [variant, setVariant] = useState([]);
-  const [variantSets, setVariantSet] = useState([]);
-  const [selectedVariants, setSelectedVariants] = useState([]);
-  const [stockData, setStockData] = useState([]);
+  interface Category {
+    id: string;
+    name: string;
+  }
+  
+  const [category, setCategory] = useState<Category[]>([]);
+  interface Brand {
+    id: string;
+    name: string;
+  }
+  
+  const [brand, setBrands] = useState<Brand[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  interface Variant {
+    id: string;
+    name: string;
+  }
+  
+  const [variant, setVariant] = useState<Variant[]>([]);
+  const [variantSets, setVariantSet] = useState<{ id: string; name: string }[][]>([]);
+  const [selectedVariants ,  setSelectedVariants] = useState<string[]>([]);
+  const [stockData ,  setStockData] = useState<StockData[]>([]);
+  const [selectedItems, setSelectedItems] = useState<Item[]>([]);
+
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
@@ -29,7 +65,6 @@ const CreateInvoice = () => {
     };
     fetchCategoryData();
   }, []);
-
   useEffect(() => {
     const fetchBrandData = async () => {
       try {
@@ -50,7 +85,7 @@ const CreateInvoice = () => {
         setVariant(variants);
         setVariantSet(variantsSet);
       } catch (err) {
-        console.log("Error fetching variants:", err);
+        console.log('Error fetching variants:', err);
       }
     };
 
@@ -61,19 +96,22 @@ const CreateInvoice = () => {
     const fetchStockData = async () => {
       if (!selectedCategory && !selectedVariants) return; // Avoid making the call if no category nor variant is selected
       try {
-        const { stock } = await fetchStock(selectedCategory, selectedVariants); // Use selectedCategory & variant directly
-        console.log(stock);
+        const { stock } = await fetchStock(selectedCategory,selectedVariants); // Use selectedCategory & variant directly
+        console.log(stock)
         setStockData(stock);
+       
       } catch (err) {
-        console.log("Error fetching variants:", err);
+        console.log('Error fetching variants:', err);
       }
     };
 
     fetchStockData(); // Call the function to fetch data
   }, [selectedCategory, selectedVariants]);
 
-  const [rows, setRows] = useState([
+
+  const [rows, setRows] = useState<Item[]>([
     {
+      id: "",
       category: "",
       brand: "",
       variant: "",
@@ -82,6 +120,8 @@ const CreateInvoice = () => {
       rate: "",
       amount: "",
       discount: "",
+      sellingPrice:"",
+      buyingPrice:"",
     },
   ]);
 
@@ -93,11 +133,37 @@ const CreateInvoice = () => {
     },
   ]);
 
-  // Function to add a new product row
-  const addRow = () => {
+  const addRow = (index: number) => {
+    // Retrieve the current row data
+    const currentRow = rows[index];
+  
+    // Validate the row data before adding to selectedItems (optional)
+    if (currentRow.category && currentRow.brand && currentRow.variant && currentRow.type) {
+      setSelectedItems((prevSelectedItems) => [
+        ...prevSelectedItems,
+        {
+          id: (prevSelectedItems.length + 1).toString(),
+          category: currentRow.category,
+          brand: currentRow.brand,
+          variant: currentRow.variant,
+          type: currentRow.type,
+          quantity: currentRow.quantity,
+          rate: currentRow.rate,
+          amount: currentRow.amount,
+          discount: currentRow.discount,
+          buyingPrice:currentRow.buyingPrice,
+          sellingPrice:currentRow.sellingPrice,
+        },
+      ]);
+    } else {
+      console.log("Please fill all fields for this row");
+    }
+  
+    // Reset the current row or allow the user to add another row (optional)
     setRows([
       ...rows,
       {
+        id: (rows.length + 1).toString(),
         category: "",
         brand: "",
         variant: "",
@@ -106,9 +172,12 @@ const CreateInvoice = () => {
         rate: "",
         amount: "",
         discount: "",
+        sellingPrice:"",
+        buyingPrice:"",
       },
     ]);
   };
+  
 
   // Function to add a new service row
   const addServiceRow = () => {
@@ -123,48 +192,48 @@ const CreateInvoice = () => {
   };
 
   // Function to remove a product row
-  const removeRow = (index) => {
+  const removeRow = (index: number) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
   };
 
   // Function to remove a service row
-  const removeServiceRow = (index) => {
+  const removeServiceRow = (index: number) => {
     const updatedServices = services.filter((_, i) => i !== index);
     setServices(updatedServices);
   };
 
   // Function to handle product input changes
-  const handleInputChange = (index, event) => {
+  const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     const updatedRows = rows.map((row, i) =>
       i === index ? { ...row, [name]: value } : row
     );
     setRows(updatedRows);
-    console.log(name);
+    console.log(name)
     if (name === "category") {
       setSelectedCategory(value);
       // to fetch variants based on the category
     }
     if (name === "type") {
-      setSelectedVariants(value);
+       setSelectedVariants([value]);
       // to fetch variants based on the category
     }
   };
 
   // Function to handle service input changes
-  const handleServiceInputChange = (index, event) => {
+  const handleServiceInputChange = (index:number, event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     const updatedServices = services.map((service, i) =>
       i === index ? { ...service, [name]: value } : service
     );
     setServices(updatedServices);
   };
-  console.log("this is category", selectedCategory);
-  console.log(variantSets);
-  console.log("selected varitns are", selectedVariants);
-  console.log("this is stock", stockData);
-
+  console.log('this is category',selectedCategory)
+  console.log(variantSets)
+  console.log('selected varitns are',selectedVariants);
+  console.log('this is stock',stockData);
+  console.log('items',selectedItems);
   return (
     <div>
       {/* Header Table */}
@@ -185,7 +254,7 @@ const CreateInvoice = () => {
             <td className="px-1 py-1">
               <div className="flex items-start mb-4">
                 <div className="mr-4">
-                  <h1 className="text-sm">Customer Name</h1>
+                  <h1 className="text-sm">Customer Mobile</h1>
                   <div className="flex flex-row gap-x-2">
                     <input
                       type="text"
@@ -200,17 +269,6 @@ const CreateInvoice = () => {
                 </div>
               </div>
             </td>
-            <td className="px-4 py-1">
-              <div className="flex items-start mb-4">
-                <div className="mr-4">
-                  <h1 className="text-sm">Invoice No</h1>
-                  <input
-                    type="text"
-                    className="w-36 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </td>
             <td className="px-40 py-1 flex justify-end">
               <div className="flex mb-4 w-auto justify-end">
                 <div className="mr-4 w-auto">
@@ -221,17 +279,6 @@ const CreateInvoice = () => {
             </td>
           </tr>
           <tr>
-            <td className="px-1 py-1">
-              <div className="flex items-start mb-4">
-                <div className="mr-4">
-                  <h1 className="text-sm">Customer Phone Number</h1>
-                  <input
-                    type="tel"
-                    className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </td>
             <td className="px-4 py-1">
               <div className="flex items-start mb-4">
                 <div className="mr-4">
@@ -247,7 +294,6 @@ const CreateInvoice = () => {
           </tr>
         </tbody>
       </table>
-
       {/* Product Rows */}
       <table className="w-auto">
         <thead>
@@ -286,7 +332,7 @@ const CreateInvoice = () => {
                 <select
                   name="category"
                   value={row.category}
-                  onChange={(e) => handleInputChange(index, e)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => handleInputChange(index, e)}
                 >
                   <option value="">Select Category</option>
                   {category.map((category) => (
@@ -300,7 +346,7 @@ const CreateInvoice = () => {
                 <select
                   name="brand"
                   value={row.brand}
-                  onChange={(e) => handleInputChange(index, e)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(index, e)}
                 >
                   <option value="">Select Brand</option>
                   {brand.map((brand) => (
@@ -314,98 +360,64 @@ const CreateInvoice = () => {
                 <select
                   name="variant"
                   value={row.variant}
-                  onChange={(e) => handleInputChange(index, e)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => handleInputChange(index, e)}
                 >
                   <option value="">Select Variant</option>
                   {variant.map((variant) => (
                     <option key={variant.id} value={variant.name}>
                       {variant.name}
-                    </option>
-                  ))}
+                    </option>))}
                 </select>
               </td>
               <td className="px-1 py-1 w-auto">
-                <select
-                  name="type"
-                  value={row.type} // Ensure row.type is being properly updated
-                  onChange={(e) => handleInputChange(index, e)}
-                >
-                  <option value="">Select Type</option>
-                  {variantSets &&
-                    variantSets[0]?.map(
-                      (
-                        v // Access the first inner array
-                      ) => (
-                        <option key={v.id} value={v.id}>
-                          {" "}
-                          {/* Use v.id as the key and value */}
-                          {v.name} {/* Output the name field from the object */}
-                        </option>
-                      )
-                    )}
-                </select>
-              </td>
+    <select
+        name="type"
+        value={row.type}  // Ensure row.type is being properly updated
+        onChange={(e) => handleInputChange(index, e)}
+    >
+        <option value="">Select Type</option>
+        {variantSets && variantSets[0]?.map((v: { id: string; name: string }) => (  // Access the first inner array
+            <option key={v.id} value={v.id}>  {/* Use v.id as the key and value */}
+                {v.name}  {/* Output the name field from the object */}
+            </option>
+        ))}
+    </select>
+</td>
 
-              <td className="px-1 py-1 w-auto">
-                <div
-                  name="stock"
-                  value={row.quantity}
-                  onChange={(e) => handleInputChange(index, e)}
-                >
-                  {stockData.map((s) => (
-                    <input
-                      key={s.id}
-                      type="number"
-                      name="quantity"
-                      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      min={1}
-                      //  value={s.buyingPrice}
-                      onChange={(e) => handleInputChange(index, e)}
-                      placeholder={s.buyingPrice}
-                    />
-                  ))}
-                </div>
-              </td>
-              <td className="px-1 py-1 w-auto">
-                <div
-                  name="stock"
-                  value={row.buyingPrice}
-                  onChange={(e) => handleInputChange(index, e)}
-                >
-                  {stockData.map((s) => (
-                    <input
-                      key={s.id}
-                      type="number"
-                      name="price"
-                      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      min={1}
-                      //  value={s.sellingPrice}
-                      onChange={(e) => handleInputChange(index, e)}
-                      placeholder={s.buyingPrice}
-                    />
-                  ))}
-                </div>
-              </td>
-              <td className="px-1 py-1 w-auto">
-                <div
-                  name="stock"
-                  value={row.sellingPrice}
-                  onChange={(e) => handleInputChange(index, e)}
-                >
-                  {stockData.map((s) => (
-                    <input
-                      key={s.id}
-                      type="number"
-                      name="price"
-                      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      min={1}
-                      //  value={s.sellingPrice}
-                      onChange={(e) => handleInputChange(index, e)}
-                      placeholder={s.sellingPrice}
-                    />
-                  ))}
-                </div>
-              </td>
+  
+  
+<td className="px-1 py-1 w-auto">
+  {stockData.map((s) => (
+    <input
+      key={s.id}
+      type="number"
+      name="quantity"
+      className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      min={1}
+      value={row.quantity}
+      onChange={(e) => handleInputChange(index, e)}
+      placeholder={s.buyingPrice}
+    />
+  ))}
+</td>
+
+<td className="px-1 py-1 w-auto">
+ 
+      
+      {stockData.map((s) => (
+         <input
+         key={s.id}
+         type="number"
+         name="price"
+         className="w-20 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+         min={1}
+        //  value={s.sellingPrice}
+         onChange={(e) => handleInputChange(index, e)}
+         placeholder={s.sellingPrice}
+       />
+      ))}
+  
+</td>
               <td className="px-1 py-1 w-auto">
                 <input
                   type="text"
@@ -430,11 +442,12 @@ const CreateInvoice = () => {
 
       {/* Add Product Button */}
       <button
-        className="w-auto mt-3 px-4 py-2 h-10 bg-gray-50 text-blue-500 shadow-sm"
-        onClick={addRow}
-      >
-        Add Item
-      </button>
+  className="w-auto mt-3 px-4 py-2 h-10 bg-gray-50 text-blue-500 shadow-sm"
+  onClick={() => addRow(rows.length - 1)} // Use the last row's index to add the data
+>
+  Add Item
+</button>
+
 
       {/* Service Rows */}
       {services.length > 0 && (
