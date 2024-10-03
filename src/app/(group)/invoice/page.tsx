@@ -61,13 +61,15 @@ interface Customer {
 }
 
 const INITIAL_INVOICE_ITEM = {
-  categoryId: "banana",
-  brandId: "apple",
+  categoryId: "Select a category",
+  brandId: "Select a brand",
   variantIds: [""],
+  variantSetsId: "",
   qty: 1,
   rate: "",
   amount: "",
   discount: "0",
+  customerId:"",
 };
 
 const INITIAL_SERVICE = {
@@ -75,29 +77,6 @@ const INITIAL_SERVICE = {
   serviceCharge: "",
   discount: "0",
 };
-
-const CUSTOMERS = [
-  {
-    name: "Nuwan Perera",
-    phone: "0711234567",
-  },
-  {
-    name: "Kasun Fernando",
-    phone: "0779876543",
-  },
-  {
-    name: "Dinuka Jayasinghe",
-    phone: "0702345678",
-  },
-  {
-    name: "Ishara Silva",
-    phone: "0728765432",
-  },
-  {
-    name: "Ruwan Wickramasinghe",
-    phone: "0753456789",
-  },
-];
 
 interface Brand {
   name: string;
@@ -131,7 +110,8 @@ export default function Invoice() {
   const [selectedVariants, setSelectedVariants] = useState([]);
   const [stockData, setStockData] = useState([]);
   const [customer, setCustomer] = useState<Customer[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
+  const [date, setDate] = useState<Date | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -205,6 +185,7 @@ export default function Invoice() {
 
   const form = useForm({
     defaultValues: {
+      customer: customer,
       invoiceItems: [INITIAL_INVOICE_ITEM],
       services: [INITIAL_SERVICE],
     },
@@ -232,9 +213,24 @@ export default function Invoice() {
 
   const [searchCustomer, setSearchCustomer] = useState<string>("");
   const [activeCustomer, setActiveCustomer] = useState<Customer | undefined>();
-  const [date, setDate] = useState<Date>();
 
+  useEffect(() => {
+    if (selectedCustomer) {
+      form.reset({
+        customer: selectedCustomer,
+        invoiceItems: [INITIAL_INVOICE_ITEM],
+        services: [INITIAL_SERVICE],
+      });
+    }
+  }, [selectedCustomer, form]);
+
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+  };
   const router = useRouter();
+  console.log('this is variants',variantSets)
+  console.log('stockDAta',stockData)
+  console.log('Customer',activeCustomer);
 
   return (
     <div className="flex flex-col w-full p-4">
@@ -251,6 +247,7 @@ export default function Invoice() {
               <div className="flex gap-2 relative">
                 <Input
                   onChange={(e) => {
+
                     setSearchCustomer(e.target.value);
                     setActiveCustomer(undefined);
                   }}
@@ -266,11 +263,11 @@ export default function Invoice() {
                       : "opacity-0 -z-10"
                   )}
                 >
-                  {CUSTOMERS.map((customer:any) => (
+                  {customer.map((customer:any) => (
                     <li key={customer.phone}>
                       <button
                         className="py-1 text-start"
-                        onClick={() => setActiveCustomer(customer)}
+                        onClick={() =>{ setActiveCustomer(customer);handleCustomerSelect(customer)}}
                       >
                         {customer.name} - {customer.phone}
                       </button>
@@ -299,6 +296,7 @@ export default function Invoice() {
                 <TableHead className="w-60">Category</TableHead>
                 <TableHead className="w-60">Brand</TableHead>
                 <TableHead className="w-60">VariantIds</TableHead>
+                <TableHead className="text-right">Types</TableHead>
                 <TableHead className="text-right">Qty</TableHead>
                 <TableHead className="text-right">Rate (Rs.)</TableHead>
                 <TableHead className="text-right">Amount (Rs.)</TableHead>
@@ -362,13 +360,12 @@ export default function Invoice() {
       {/* variants cell */}
       <TableCell className="py-2">
         <Select
-          onValueChange={(value) =>{
-            setSelectedVariants(value)
+          onValueChange={(value) =>
             updateInvoiceItems(i, {
               ...row, // Only update the variantId
               variantId: value,
             })
-          }}
+          }
           value={row.variantId} // Controlled input
         >
           <SelectTrigger>
@@ -385,9 +382,34 @@ export default function Invoice() {
           </SelectContent>
         </Select>
       </TableCell>
-      <TableCell className="text-right py-2">0</TableCell>
-      <TableCell className="text-right py-2">0</TableCell>
-      <TableCell className="text-right py-2">0</TableCell>
+      <TableCell className="py-2">
+        <Select
+          onValueChange={(value) =>{
+            setSelectedVariants(value)
+            updateInvoiceItems(i, {
+              ...row, // Only update the variantId
+              variantSetsId: value,
+            })
+          }}
+          value={row.variantSetsId} // Controlled input
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a variant" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+            {variantSets && variantSets[0]?.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell className="text-right py-2">{stockData.avbQty}</TableCell>
+      <TableCell className="text-right py-2">{stockData.sellingPrice}</TableCell>
+      <TableCell className="text-right py-2">{stockData.buyingPrice}</TableCell>
       <TableCell className="py-2">
         <Input
           onChange={(e) =>

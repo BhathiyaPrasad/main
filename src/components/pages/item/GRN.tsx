@@ -326,10 +326,10 @@ useEffect(() => {
                   </option>
                 ))}
               </select>
-              {/* {errors.items?.[index]?.brand && (
+              {errors.items?.[index]?.brand && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.items[index]?.brand?.message}
-                </p> */}
+                </p>
               )}
             </td>
                 <td className="px-1 py-1 w-auto">
@@ -342,11 +342,11 @@ useEffect(() => {
                     <option value="">Select Variant</option>
                     {/* Add brands here */}
                   </select>
-                  {/* {errors.items?.[index]?.variant && (
+                  {errors.items?.[index]?.variant && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.variant?.message}
                     </p>
-                  )} */}
+                  )}
                 </td>
                 <td className="px-1 py-1 w-auto">
               <select
@@ -363,11 +363,11 @@ useEffect(() => {
                   </option>
                 ))}
               </select>
-              {/* {errors.items?.[index]?.variant && (
+              {errors.items?.[index]?.variant && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.items[index]?.variant?.message}
                 </p>
-              )} */}
+              )}
             </td>
                 <td className="px-1 py-1 w-auto">
                   <input
@@ -377,11 +377,11 @@ useEffect(() => {
                       required: "Quantity is required",
                     })}
                   />
-                  {/* {errors.items?.[index]?.quantity && (
+                  {errors.items?.[index]?.quantity && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.quantity?.message}
                     </p>
-                  )} */}
+                  )}
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <select
@@ -393,11 +393,11 @@ useEffect(() => {
                     <option value="General">General</option>
                     <option value="Special">Style</option>
                   </select>
-                  {/* {errors.items?.[index]?.grnType && (
+                  {errors.items?.[index]?.grnType && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.grnType?.message}
                     </p>
-                  )} */}
+                  )}
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <input
@@ -406,11 +406,11 @@ useEffect(() => {
                       required: "Cost Price is required",
                     })}
                   />
-                  {/* {errors.items?.[index]?.costPrice && (
+                  {errors.items?.[index]?.costPrice && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.costPrice?.message}
                     </p>
-                  )} */}
+                  )}
                 </td>
                 <td className="px-1 py-1 w-auto">
                   <input
@@ -419,10 +419,10 @@ useEffect(() => {
                       required: "Amount is required",
                     })}
                   />
-                  {/* {errors.items?.[index]?.amount && (
+                  {errors.items?.[index]?.amount && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.items[index]?.amount?.message}
-                    </p> )} */}
+                    </p> )}
                   
                 </td>
                 <td className="px-1 py-1 w-auto">
