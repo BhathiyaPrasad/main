@@ -1,37 +1,14 @@
 "use client";
-import React, { useRef } from "react";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
-import ChequeDueRem from "../../components/tables/ChequeDueRem";
-import OutofStockAlert from "../../components/tables/OutofStockAlert";
-import Header from "../../components/Header";
-import InvoiceTable from "../../components/tables/InvoiceTable";
-import CreditDueRem from "../../components/tables/CreditDueRem";
-import CreditnDebitRepo from "../../components/tables/CreditnDebitRepo";
-import {
-  ArrowRight,
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
-import Top from "../../components/Top";
-import { FaArrowRightLong } from "react-icons/fa6";
-import PreviousMonthRepo from "../../components/tables/PreviousMonthRepo";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import ThisMonthIncomeReport from "./popups/ThisMonthIncomeReport";
-import ThisMonthExpensesReport from "./popups/ThisMonthExpensesReport";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
-import MonthlyLNPReport from "./popups/MonthlyLNPReport";
+import MonthlyLNPReport from "../../../components/pages/invoice/MonthlyLNPReport";
+import ThisMonthExpensesReport from "../../../components/pages/invoice/ThisMonthExpensesReport";
+import ThisMonthIncomeReport from "../../../components/pages/invoice/ThisMonthIncomeReport";
+import PreviousMonthRepo from "../../../components/tables/PreviousMonthRepo";
+import Top from "../../../components/Top";
 
 export default function Account() {
   return (

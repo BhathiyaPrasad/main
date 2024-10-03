@@ -1,7 +1,5 @@
 "use client";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -18,10 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FaRegPlusSquare, FaWindowClose } from "react-icons/fa";
-import { useForm, useFieldArray } from "react-hook-form";
-import { addCategory } from "@/services/categoryService";
 import { fetchBrands } from "@/services/brandService";
+import { addCategory } from "@/services/categoryService";
+import * as React from "react";
+import { useEffect } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { FaRegPlusSquare, FaWindowClose } from "react-icons/fa";
 
 interface Brand {
   id: string;
@@ -67,7 +67,7 @@ export function CreateCategory() {
 
   const onSubmit = async (data: FormValues) => {
     let hasErrors = false;
-  
+
     // Validate input
     data.categories.forEach((category, index) => {
       if (category.variants.length === 0) {
@@ -76,33 +76,37 @@ export function CreateCategory() {
       }
       category.variants.forEach((variant, variantIndex) => {
         if (variant.types.length === 0) {
-          alert(`Variant ${variantIndex + 1} in category ${index + 1} must have at least one type`);
+          alert(
+            `Variant ${variantIndex + 1} in category ${
+              index + 1
+            } must have at least one type`
+          );
           hasErrors = true;
         }
       });
     });
-  
+
     if (!hasErrors) {
       try {
         // Prepare variantGroups
         const variantGroups = data.categories[0].variants.map((variant) => ({
           name: variant.variantName,
-          description: '', // Add a description if needed
-          variants: variant.types.map(type => ({
+          description: "", // Add a description if needed
+          variants: variant.types.map((type) => ({
             name: type.typeName,
-            description: '', // Add a description if needed
+            description: "", // Add a description if needed
           })),
         }));
-  
+
         // Log variantGroups for debugging
         console.log("Prepared variantGroups:", variantGroups);
-  
+
         const categoryData = {
           brandId: data.categories[0].brand,
           categoryName: data.categories[0].categoryName,
           variantGroups: variantGroups.length > 0 ? variantGroups : [], // Send empty array if no groups
         };
-  
+
         console.log("Sending categoryData:", categoryData); // For debugging
         await addCategory(categoryData);
         console.log("Category added successfully:", categoryData);
@@ -113,8 +117,7 @@ export function CreateCategory() {
       }
     }
   };
-  
-  
+
   useEffect(() => {
     const fetchBrandsData = async () => {
       setLoading(true);
@@ -140,13 +143,21 @@ export function CreateCategory() {
         {error && <p className="text-red-500">{error}</p>}
         <form onSubmit={handleSubmit(onSubmit)}>
           {categoryFields.map((category, categoryIndex) => (
-            <div key={category.id} className="grid w-full items-center gap-4 mb-4">
+            <div
+              key={category.id}
+              className="grid w-full items-center gap-4 mb-4"
+            >
               <div className="flex flex-col space-y-1.5">
-                <Label className="py-2" htmlFor={`categories.${categoryIndex}.brand`}>
+                <Label
+                  className="py-2"
+                  htmlFor={`categories.${categoryIndex}.brand`}
+                >
                   Select Brand
                 </Label>
                 <Select
-                  onValueChange={(value) => setValue(`categories.${categoryIndex}.brand`, value)}
+                  onValueChange={(value) =>
+                    setValue(`categories.${categoryIndex}.brand`, value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select" />
@@ -165,7 +176,10 @@ export function CreateCategory() {
                   </p>
                 )}
 
-                <Label className="py-2" htmlFor={`categories.${categoryIndex}.categoryName`}>
+                <Label
+                  className="py-2"
+                  htmlFor={`categories.${categoryIndex}.categoryName`}
+                >
                   Category Name
                 </Label>
                 <Input
@@ -204,7 +218,11 @@ export function CreateCategory() {
 }
 
 function VariantsSection({ categoryIndex, control, register, errors }: any) {
-  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
+  const {
+    fields: variantFields,
+    append: appendVariant,
+    remove: removeVariant,
+  } = useFieldArray({
     control,
     name: `categories.${categoryIndex}.variants`,
   });
@@ -215,9 +233,12 @@ function VariantsSection({ categoryIndex, control, register, errors }: any) {
       {variantFields.map((variant, variantIndex) => (
         <div key={variant.id} className="flex flex-col space-y-2 mb-4">
           <Input
-            {...register(`categories.${categoryIndex}.variants.${variantIndex}.variantName`, {
-              required: "Variant Name is required",
-            })}
+            {...register(
+              `categories.${categoryIndex}.variants.${variantIndex}.variantName`,
+              {
+                required: "Variant Name is required",
+              }
+            )}
             placeholder="Variant Name"
             className="w-48 mb-2"
           />
@@ -255,8 +276,18 @@ function VariantsSection({ categoryIndex, control, register, errors }: any) {
   );
 }
 
-function TypesSection({ categoryIndex, variantIndex, control, register, errors }: any) {
-  const { fields: typeFields, append: appendType, remove: removeType } = useFieldArray({
+function TypesSection({
+  categoryIndex,
+  variantIndex,
+  control,
+  register,
+  errors,
+}: any) {
+  const {
+    fields: typeFields,
+    append: appendType,
+    remove: removeType,
+  } = useFieldArray({
     control,
     name: `categories.${categoryIndex}.variants.${variantIndex}.types`,
   });
@@ -283,9 +314,14 @@ function TypesSection({ categoryIndex, variantIndex, control, register, errors }
           >
             <FaWindowClose />
           </Button>
-          {errors.categories?.[categoryIndex]?.variants?.[variantIndex]?.types?.[typeIndex]?.typeName && (
+          {errors.categories?.[categoryIndex]?.variants?.[variantIndex]
+            ?.types?.[typeIndex]?.typeName && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.categories[categoryIndex].variants[variantIndex].types[typeIndex].typeName?.message}
+              {
+                errors.categories[categoryIndex].variants[variantIndex].types[
+                  typeIndex
+                ].typeName?.message
+              }
             </p>
           )}
         </div>

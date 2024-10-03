@@ -1,8 +1,8 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { FaArrowRightLong } from "react-icons/fa6";
+import AddNewCustomerDetails from "../../../components/pages/customer/AddNewCustomerDetails";
 import CustTable from "../../../components/tables/CustTable";
 import Top from "../../../components/Top";
-import AddNewCustomerDetails from "./popups/AddNewCustomerDetails";
 
 export default function customer() {
   return (

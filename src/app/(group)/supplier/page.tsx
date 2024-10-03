@@ -1,8 +1,8 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { FaArrowRightLong } from "react-icons/fa6";
 import Top from "../../../components/Top";
+import AddNewSupplierDetails from "../../../components/pages/supplier/AddNewSupplierDetails";
 import SupTable from "../../../components/tables/SupTable";
-import AddNewSupplierDetails from "./popups/AddNewSupplierDetails";
 
 export default function supplier() {
   return (

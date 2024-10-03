@@ -2,11 +2,11 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { UserRoundPlus } from "lucide-react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import Top from "../../../components/Top";
+import AddNewEmployeer from "../../../components/pages/employee/AddNewEmployeer";
+import AttendanceMark from "../../../components/pages/employee/AttendanceMark";
 import AttendanceTable from "../../../components/tables/AttendanceTable";
 import EmpDetailsTable from "../../../components/tables/EmpDetailsTable";
 import SalaryManagTable from "../../../components/tables/SalaryManagTable";
-import AddNewEmployeer from "./popups/AddNewEmployeer";
-import AttendanceMark from "./popups/AttendanceMark";
 
 export default function Employee() {
   return (
