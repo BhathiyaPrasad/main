@@ -46,6 +46,13 @@ interface VariantSets {
     id: string;
 }
 
+interface StockData {
+    name:string;
+    code:string;
+    sellingPrice:string;
+    avbQty:number;
+
+}
 const InvoiceItemRow: React.FC<InvoiceItemRowProps> = ({
     row,
     i,
@@ -62,7 +69,7 @@ const InvoiceItemRow: React.FC<InvoiceItemRowProps> = ({
     const [brands, setBrands] = useState<Brand[]>([]);
     const [variants, setVariants] = useState<Variant[]>([]);
     const [variantSets, setVariantSets] = useState<VariantSets[]>([]);
-    const [stockData, setStockData] = useState<Category[]>([]);
+    const [stockData, setStockData] = useState<StockData[]>([]);
     const [discountType, setDiscountType] = useState(row.discountType || 'AMOUNT');
     const [inputDiscount, setInputDiscount] = useState(row.discount || ''); // Initialize with existing discount
     // Fetch categories
@@ -110,15 +117,28 @@ const InvoiceItemRow: React.FC<InvoiceItemRowProps> = ({
     useEffect(() => {
         const fetchStockData = async () => {
             if (!selectedCategory || !selectedVariant) return;
+    
             try {
                 const { stock } = await fetchStock(selectedCategory, selectedVariant);
                 setStockData(stock);
+                
+                if (stock.length > 0) {
+                    const stockId = stock[0].id;
+                    const sellingPrice = stock[0].sellingPrice;
+    
+                    // Only update if stockId or sellingPrice (rate) has changed
+                    if (row.stockId !== stockId || row.rate !== sellingPrice) {
+                        updateInvoiceItems(i, { ...row, stockId, rate: sellingPrice });
+                    }
+                }
             } catch (err) {
                 console.error(err);
             }
         };
+    
         fetchStockData();
-    }, [selectedCategory, selectedVariant]);
+    }, [selectedCategory, selectedVariant]);  // Only run when these change
+    
 
     // Handlers for each select input
     const handleCategoryChange = (value: string) => {
@@ -261,7 +281,7 @@ const InvoiceItemRow: React.FC<InvoiceItemRowProps> = ({
             <TableCell className="py-2">
                 <Input
                     onChange={(e) => updateInvoiceItems(i, { ...row, qty: e.target.value })}
-                    className="text- py-2"
+                    className="text-py-2"
                     value={row.qty}
                 />
             </TableCell>

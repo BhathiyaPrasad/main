@@ -2,14 +2,8 @@
 import InvoiceItemRow from "@/components/tables/CreateInvoice";
 import Top from "@/components/Top";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -18,16 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { fetchCustomers } from "@/services/customerServices";
-import { format } from "date-fns";
-import { CalendarIcon, Plus } from "lucide-react";
+import { addInvoice } from "@/services/invoiceService";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-
 type InvoiceItem = {
   categoryId: string;
   brandId: string;
@@ -36,6 +29,7 @@ type InvoiceItem = {
   rate: string;
   amount: string;
   discount: string;
+  stockId:string;
 };
 
 interface Customer {
@@ -58,7 +52,7 @@ const INITIAL_INVOICE_ITEM = {
   rate: "",
   amount: "",
   discount: "0",
-
+  discountType:"AMOUNT"
 };
 
 const INITIAL_SERVICE = {
@@ -72,6 +66,10 @@ export default function Invoice() {
   const [customer, setCustomer] = useState<Customer[]>([]);
   const [date, setDate] = useState<Date | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [note, setNote] = useState('');
+  const [totalPayment, setTotalPayment] = useState(0);
+  const [discount, setDiscount] = useState(0);
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -91,11 +89,11 @@ export default function Invoice() {
     defaultValues: {
       userId: '',
       customerId: customer,
-      note: '',
-      paymentMethod: '',
-      payment: 0,
-      discountType: '',
-      discount: 0,
+      note: note,
+      paymentMethod: paymentMethod,
+      payment: totalPayment,
+      discountType: 'AMOUNT',
+      discount: discount,
       invoiceItems: [INITIAL_INVOICE_ITEM],
       services: [INITIAL_SERVICE],
     },
@@ -110,8 +108,8 @@ export default function Invoice() {
     name: "invoiceItems",
     control: form.control,
   });
-  
-  
+
+
 
   const {
     fields: services,
@@ -132,11 +130,15 @@ export default function Invoice() {
         customer: selectedCustomer,
         invoiceItems: [INITIAL_INVOICE_ITEM],
         services: [INITIAL_SERVICE],
+        paymentMethod: paymentMethod,
+        note: note,
+        payment: totalPayment
+
       });
     }
-  }, [selectedCustomer, form]);
+  }, [selectedCustomer, form, paymentMethod, totalPayment, note]);
 
-  console.log({invoiceItems})
+  console.log({ invoiceItems })
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
@@ -144,6 +146,68 @@ export default function Invoice() {
   const router = useRouter();
   console.log('Customer', activeCustomer);
   console.log('dataset', form.getValues())
+
+
+  const handlePaymentChange = (value: string) => {
+    setPaymentMethod(value);
+  };
+
+  const handleNoteChange = (e: any) => setNote(e.target.value);
+  const handleTotalPaymentChange = (e: any) => setTotalPayment(e.target.value);
+  const handleDiscountChange = (e: any) => setDiscount(e.target.value);
+  const handlePaymentMethodChange = (value: string) => {
+    setPaymentMethod(value);
+    form.setValue("paymentMethod", value); // Update payment method in form
+  };
+
+
+  const handleSubmit = async () => {
+    const formData = form.getValues();
+
+    // Structure the invoice items
+    const invoiceItemsPayload = formData.invoiceItems.map((item: InvoiceItem) => ({
+      categoryId: item.categoryId,
+      brandId: item.brandId,
+      stockId:item.stockId,
+      variantIds: item.variantIds,
+      qty: item.qty,
+      rate: item.rate,
+      amount: item.amount,
+      discount: parseFloat(item.discount),
+      discountType:"AMOUNT"
+    }));
+
+    // Prepare the body for the invoice
+    const invoicePayload = {
+      customerId: selectedCustomer?.id || "",
+      note: formData.note,
+      paymentMethod: formData.paymentMethod,
+      payment: 0,
+      discountType: "AMOUNT",
+      discount: 0,
+      items: invoiceItemsPayload,
+      services: formData.services.map((service) => ({
+        name: service.name,
+        serviceCharge: service.serviceCharge,
+        discount: service.discount,
+      })),
+    };
+
+    console.log('payload', invoicePayload);
+
+    // Send the payload to the backend
+    try {
+      const result = await addInvoice(invoicePayload);
+      if (result) {
+        console.log("Invoice created successfully", result);
+      } else {
+        console.error("Failed to create invoice");
+      }
+    } catch (error) {
+      console.error("Error while creating invoice:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full p-4">
       <div className="flex justify-between items-center">
@@ -216,200 +280,100 @@ export default function Invoice() {
               </TableRow>
             </TableHeader>
             <TableBody>
-      {invoiceItems.map((row, i) => (
-        <InvoiceItemRow
-          key={`${row.id}-${i}`}
-          row={row}
-          i={i}
-          updateInvoiceItems={updateInvoiceItems}
-          removeInvoiceItems={removeInvoiceItems}
+              {invoiceItems.map((row, i) => (
+                <InvoiceItemRow
+                  key={`${row.id}-${i}`}
+                  row={row}
+                  i={i}
+                  updateInvoiceItems={updateInvoiceItems}
+                  removeInvoiceItems={removeInvoiceItems}
 
-        />
-      ))}
-      {/* Add Item Button */}
-      <TableRow className="hover:bg-background">
-        <TableCell colSpan={7} className="pt-0">
-          <Button
-            variant="outline"
-            className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
-            onClick={() => appendInvoiceItems(INITIAL_INVOICE_ITEM)}
-          >
-            Add Item +
-          </Button>
-        </TableCell>
-      </TableRow>
-    </TableBody>
+                />
+              ))}
+              {/* Add Item Button */}
+              <TableRow className="hover:bg-background">
+                <TableCell colSpan={7} className="pt-0">
+                  <Button
+                    variant="outline"
+                    className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
+                    onClick={() => appendInvoiceItems(INITIAL_INVOICE_ITEM)}
+                  >
+                    Add Item +
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
 
           </Table>
         </div>
+        <div className="flex flex-col">
 
-        {/* {isMounted && (
-          <table className="w-1/2">
-            <tr>
-              <th className="text-start">
-                <Label>Service Name</Label>
-              </th>
-              <th className="text-start">
-                <Label>Service Charge (Rs.)</Label>
-              </th>
-              <th className="text-start">
-                <Label>Discount</Label>
-              </th>
-            </tr>
-            {services.map((row, i) => (
-              <tr key={row.id} className="relative">
-                <td className="pe-2 py-2">
-                  <Input />
-                </td>
-                <td className="pe-2 py-2">
-                  <Input className="text-right" />
-                </td>
-                <td className="flex items-center py-2">
-                  <Input className="text-right" />
-                </td>
-                <button
-                  className="absolute -end-9 top-4"
-                  onClick={() => {
-                    if (services.length > 1) removeServices(i);
-                  }}
-                >
-                  <X className="text-destructive w-5 h-5" />
-                </button>
-              </tr>
-            ))}
-            <tr>
-              <td colSpan={3}>
-                <Button
-                  variant="outline"
-                  className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
-                  onClick={() => appendServices(INITIAL_SERVICE)}
-                >
-                  Add Service +
-                </Button>
-              </td>
-            </tr>
-          </table>
-        )} */}
+          <div className="grid grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label>Note</Label>
+              <Textarea
+                placeholder="Type here..."
+                className="h-full"
+                {...form.register("note", {
+                  value: note,
+                  onChange: (e) => setNote(e.target.value)
+                })}
+              />
 
-        <div className="grid grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label>Note</Label>
-            <Textarea placeholder="Type here..." className="h-full" />
-          </div>
-
-          <div className="grid grid-cols-2 ms-10 gap-10">
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <Label>Total Payment</Label>
-                <Input className="text-end" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Discount</Label>
-                <Input className="text-end" />
-              </div>
             </div>
 
-            <div className="flex flex-col">
-              <Tabs defaultValue="cash">
-                <TabsList className="w-full">
-                  <TabsTrigger value="cash">Cash</TabsTrigger>
-                  <TabsTrigger value="cheque">Cheque</TabsTrigger>
-                  <TabsTrigger value="credit">Credit</TabsTrigger>
-                </TabsList>
-                <TabsContent value="cash" className="px-1 flex flex-col gap-5">
-                  <div className="flex flex-col gap-2">
-                    <Label>Amount</Label>
-                    <Input />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label>Balance Amount</Label>
-                    <Input />
-                  </div>
-                </TabsContent>
-                <TabsContent
-                  value="cheque"
-                  className="px-1 gap-5 flex flex-col"
-                >
-                  <div className="flex flex-col gap-2">
-                    <Label>Cheque Number</Label>
-                    <Input />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label>Bank Details</Label>
-                    <Input />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label>Due Date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "justify-start text-left font-normal border border-input",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </TabsContent>
-                <TabsContent
-                  value="credit"
-                  className="px-1 gap-5 flex flex-col"
-                >
-                  <div className="flex flex-col gap-2">
-                    <Label>Advanced Amount</Label>
-                    <Input />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label>Due Date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "justify-start text-left font-normal border border-input",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 ms-10 gap-10">
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <Label>Total Payment</Label>
+                  <Input
+                    className="text-end"
+                    {...form.register("payment", {
+                      value: totalPayment,
+                      onChange: (e) => setTotalPayment(e.target.value)
+                    })}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Discount</Label>
+                  <Input
+                    className="text-end"
+                    {...form.register("discount", {
+                      value: discount,
+                      onChange: (e) => setDiscount(e.target.value)
+                    })}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>Payment Method</Label>
+                <Tabs defaultValue={paymentMethod}>
+                  <TabsList>
+                    <TabsTrigger
+                      value="CASH"
+                      onClick={() => handlePaymentMethodChange("CASH")}
+                    >
+                      Cash
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="CARD"
+                      onClick={() => handlePaymentMethodChange("CARD")}
+                    >
+                      Card
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="CHEQUE"
+                      onClick={() => handlePaymentMethodChange("CHEQUE")}
+                    >
+                      Cheque
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <div className="grid grid-cols-3 gap-3 mt-5">
                 <Button variant="secondary">Cancel</Button>
                 <Button variant="outline">Print</Button>
-                <Button onClick={() => console.log(form.getValues())}>
+                <Button onClick={handleSubmit}>
                   Save
                 </Button>
               </div>
