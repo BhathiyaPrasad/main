@@ -30,7 +30,7 @@ export default function item() {
             </div>
           </div>
         </DialogTrigger>
-        <DialogContent className="w-fit h-auto max-h-screen max-w-3/4 overflow-scroll">
+        <DialogContent className="h-auto max-h-screen max-w-screen-xl overflow-auto">
           <GRN />
         </DialogContent>
       </Dialog>
