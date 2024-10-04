@@ -2,14 +2,8 @@
 import InvoiceItemRow from "@/components/tables/CreateInvoice";
 import Top from "@/components/Top";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -18,12 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { fetchCustomers } from "@/services/customerServices";
-import { format } from "date-fns";
-import { CalendarIcon, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -72,6 +65,10 @@ export default function Invoice() {
   const [customer, setCustomer] = useState<Customer[]>([]);
   const [date, setDate] = useState<Date | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [note, setNote] = useState('');
+  const [totalPayment, setTotalPayment] = useState('');
+  const [discount, setDiscount] = useState('');
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -92,7 +89,7 @@ export default function Invoice() {
       userId: '',
       customerId: customer,
       note: '',
-      paymentMethod: '',
+      paymentMethod: paymentMethod,
       payment: 0,
       discountType: '',
       discount: 0,
@@ -110,8 +107,8 @@ export default function Invoice() {
     name: "invoiceItems",
     control: form.control,
   });
-  
-  
+
+
 
   const {
     fields: services,
@@ -132,11 +129,14 @@ export default function Invoice() {
         customer: selectedCustomer,
         invoiceItems: [INITIAL_INVOICE_ITEM],
         services: [INITIAL_SERVICE],
+        paymentMethod: paymentMethod,
+        note:note,
+        
       });
     }
-  }, [selectedCustomer, form]);
+  }, [selectedCustomer, form, paymentMethod]);
 
-  console.log({invoiceItems})
+  console.log({ invoiceItems })
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
@@ -144,6 +144,16 @@ export default function Invoice() {
   const router = useRouter();
   console.log('Customer', activeCustomer);
   console.log('dataset', form.getValues())
+
+
+  const handlePaymentChange = (value) => {
+    setPaymentMethod(value);
+  };
+
+  const handleNoteChange = (e) => setNote(e.target.value);
+  const handleTotalPaymentChange = (e) => setTotalPayment(e.target.value);
+  const handleDiscountChange = (e) => setDiscount(e.target.value);
+
   return (
     <div className="flex flex-col w-full p-4">
       <div className="flex justify-between items-center">
@@ -216,29 +226,29 @@ export default function Invoice() {
               </TableRow>
             </TableHeader>
             <TableBody>
-      {invoiceItems.map((row, i) => (
-        <InvoiceItemRow
-          key={`${row.id}-${i}`}
-          row={row}
-          i={i}
-          updateInvoiceItems={updateInvoiceItems}
-          removeInvoiceItems={removeInvoiceItems}
+              {invoiceItems.map((row, i) => (
+                <InvoiceItemRow
+                  key={`${row.id}-${i}`}
+                  row={row}
+                  i={i}
+                  updateInvoiceItems={updateInvoiceItems}
+                  removeInvoiceItems={removeInvoiceItems}
 
-        />
-      ))}
-      {/* Add Item Button */}
-      <TableRow className="hover:bg-background">
-        <TableCell colSpan={7} className="pt-0">
-          <Button
-            variant="outline"
-            className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
-            onClick={() => appendInvoiceItems(INITIAL_INVOICE_ITEM)}
-          >
-            Add Item +
-          </Button>
-        </TableCell>
-      </TableRow>
-    </TableBody>
+                />
+              ))}
+              {/* Add Item Button */}
+              <TableRow className="hover:bg-background">
+                <TableCell colSpan={7} className="pt-0">
+                  <Button
+                    variant="outline"
+                    className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
+                    onClick={() => appendInvoiceItems(INITIAL_INVOICE_ITEM)}
+                  >
+                    Add Item +
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
 
           </Table>
         </div>
@@ -291,34 +301,51 @@ export default function Invoice() {
           </table>
         )} */}
 
-        <div className="grid grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label>Note</Label>
-            <Textarea placeholder="Type here..." className="h-full" />
-          </div>
-
-          <div className="grid grid-cols-2 ms-10 gap-10">
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <Label>Total Payment</Label>
-                <Input className="text-end" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label>Discount</Label>
-                <Input className="text-end" />
-              </div>
-            </div>
+    
 
             <div className="flex flex-col">
-              <Tabs defaultValue="cash">
+
+  <div className="grid grid-cols-2">
+        <div className="flex flex-col gap-2">
+        <Label>Note</Label>
+        <Textarea 
+          placeholder="Type here..." 
+          className="h-full" 
+          value={note} 
+          onChange={handleNoteChange} 
+        />
+      </div>
+
+      <div className="grid grid-cols-2 ms-10 gap-10">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <Label>Total Payment</Label>
+            <Input 
+              className="text-end" 
+              value={totalPayment} 
+              onChange={handleTotalPaymentChange} 
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Discount</Label>
+            <Input 
+              className="text-end" 
+              value={discount} 
+              onChange={handleDiscountChange} 
+            />
+          </div>
+       </div>
+
+
+              {/* <Tabs defaultValue="cash">
                 <TabsList className="w-full">
                   <TabsTrigger value="cash">Cash</TabsTrigger>
                   <TabsTrigger value="cheque">Cheque</TabsTrigger>
                   <TabsTrigger value="credit">Credit</TabsTrigger>
                 </TabsList>
                 <TabsContent value="cash" className="px-1 flex flex-col gap-5">
-                  <div className="flex flex-col gap-2">
-                    <Label>Amount</Label>
+                  <div className="flex flex-col gap-2"> */}
+              {/* <Label>Amount</Label>
                     <Input />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -401,12 +428,19 @@ export default function Invoice() {
                           onSelect={setDate}
                         />
                       </PopoverContent>
-                    </Popover>
-                  </div>
+                    </Popover> */}
+              {/* </div>
                 </TabsContent>
-              </Tabs>
+              </Tabs> */}
 
-              <div className="grid grid-cols-3 gap-3">
+              <Tabs defaultValue="CASH" onValueChange={handlePaymentChange}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="CASH">Cash</TabsTrigger>
+                  <TabsTrigger value="CHEQUE">Cheque</TabsTrigger>
+                  <TabsTrigger value="CREDIT">Credit</TabsTrigger>
+                </TabsList>
+              </Tabs>
+               <div className="grid grid-cols-3 gap-3 mt-5">
                 <Button variant="secondary">Cancel</Button>
                 <Button variant="outline">Print</Button>
                 <Button onClick={() => console.log(form.getValues())}>
