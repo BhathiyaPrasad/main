@@ -1,11 +1,32 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { fetchBrands } from "@/services/brandService";
 import { fetchCategories } from "@/services/categoryService";
 import { fetchVariants } from "@/services/variantService";
-import { PlusSquare } from "lucide-react";
+import { Label } from "@radix-ui/react-label";
+import { Plus, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { AiFillCloseSquare } from "react-icons/ai";
 
 interface FormValues {
   supplierName: string;
@@ -29,6 +50,18 @@ interface Supplier {
   code: string;
   id: string;
 }
+
+interface Representative {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  supplier: Supplier;
+}
+
 interface Brand {
   name: string;
   code: string;
@@ -51,10 +84,102 @@ interface VariantSets {
   id: string;
 }
 
+const REPRESENTATIVES: Representative[] = [
+  {
+    id: "698f329b-7555-4c3e-9a7a-b19869a96b86",
+    name: "Urvi Konda",
+    phone: "+94771234567",
+    email: "bijuhanda@yahoo.com",
+    description: "Quis odio reiciendis cum.",
+    createdAt: "2021-12-14T00:21:06",
+    updatedAt: "2024-01-27T15:43:15",
+    supplier: {
+      name: "Butala, Saxena and Chanda",
+      code: "SUP508",
+      id: "08e48d08-7f52-44c5-afcd-1525349bc804",
+    },
+  },
+  {
+    id: "484071d5-7216-4d85-9419-3227a7d4555c",
+    name: "Divyansh Doshi",
+    phone: "+94772234567",
+    email: "tejaskade@krish-mane.com",
+    description: "Fugit culpa eos repudiandae repudiandae veniam.",
+    createdAt: "2022-02-11T08:53:52",
+    updatedAt: "2024-01-12T02:23:10",
+    supplier: {
+      name: "Bains LLC",
+      code: "SUP593",
+      id: "8ac7c107-4a47-4592-bfe8-7e868844e934",
+    },
+  },
+  {
+    id: "22a86859-ff29-4b80-8b51-8f30fb355e32",
+    name: "Nirvaan Bahl",
+    phone: "+94773234567",
+    email: "jcontractor@gmail.com",
+    description: "Deleniti dolores veniam sint.",
+    createdAt: "2021-12-12T13:45:47",
+    updatedAt: "2024-01-01T14:01:25",
+    supplier: {
+      name: "Dass Ltd",
+      code: "SUP784",
+      id: "8c1d343c-05d7-478d-8b2e-472c099e647a",
+    },
+  },
+  {
+    id: "81ab3e89-5834-43d1-b6dd-57bbd48559c2",
+    name: "Damini Kota",
+    phone: "+94774234567",
+    email: "swaminathansaksham@yahoo.com",
+    description: "Aperiam necessitatibus veniam eveniet.",
+    createdAt: "2022-01-24T22:18:17",
+    updatedAt: "2024-08-31T20:13:14",
+    supplier: {
+      name: "Aurora, Sachdev and Mahal",
+      code: "SUP239",
+      id: "f8e311b1-21e2-4a35-a02c-7608776c163d",
+    },
+  },
+  {
+    id: "1b4dbf07-47c7-4cc7-a6fe-3dee8e88917b",
+    name: "Damini Chaudhuri",
+    phone: "+94775234567",
+    email: "daliajivika@hotmail.com",
+    description: "Voluptatum nulla harum ipsam velit error.",
+    createdAt: "2022-06-07T04:16:36",
+    updatedAt: "2024-06-29T03:53:16",
+    supplier: {
+      name: "Chahal-Wable",
+      code: "SUP853",
+      id: "9fae862a-a0f5-4b16-a9a8-443e3546f7df",
+    },
+  },
+];
 
+const INITIAL_GRN_ITEM = {
+  categoryId: "banana",
+  brandId: "apple",
+  variantIds: [""],
+  qty: 1,
+  sellingPrice: "",
+  buyingPrice: "",
+  maxDiscount: "0",
+};
+
+const INITIAL_SERVICE = {
+  name: "",
+  serviceCharge: "",
+  discount: "0",
+};
 
 const CreateInvoice = () => {
-  const [supplier ,  setSupplier] = useState<Supplier[]>([]);
+  const [searchRepresentative, setSearchRepresentative] = useState("");
+  const [activeRepresentative, setActiveRepresentative] = useState<
+    Representative | undefined
+  >(undefined);
+
+  const [supplier, setSupplier] = useState<Supplier[]>([]);
   const [category, setCategory] = useState<Category[]>([]);
   const [brand, setBrand] = useState<Brand[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -62,6 +187,9 @@ const CreateInvoice = () => {
   const [variantSets, setVariantSet] = useState<VariantSets[]>([]);
   const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
   const [selectedBrand, setSelectedBrand] = useState("");
+
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -85,60 +213,58 @@ const CreateInvoice = () => {
     },
   });
 
- // Fetch supplier data from the API
- useEffect(() => {
-  const fetchSuppliers = async () => {
-    try {
-      const response = await fetchSuppliers(); // Fetch suppliers from the API
-      setSupplier(response);
-    } catch (error) {
-      console.log("Failed to fetch suppliers." , error);
-    } 
-  };
+  // Fetch supplier data from the API
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await fetchSuppliers(); // Fetch suppliers from the API
+        setSupplier(response);
+      } catch (error) {
+        console.log("Failed to fetch suppliers.", error);
+      }
+    };
 
-  fetchSuppliers();
-}, []);
+    fetchSuppliers();
+  }, []);
 
-useEffect(() => {
-  const fetchCategoryData = async () => {
-    try {
-      const { categories } = await fetchCategories();
-      setCategory(categories);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  fetchCategoryData();
-}, []);
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const { categories } = await fetchCategories();
+        setCategory(categories);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchCategoryData();
+  }, []);
 
-useEffect(() => {
-  const fetchBrandData = async () => {
-    try {
-      const { brands } = await fetchBrands();
-      setBrand(brands);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  fetchBrandData();
-}, []);
+  useEffect(() => {
+    const fetchBrandData = async () => {
+      try {
+        const { brands } = await fetchBrands();
+        setBrand(brands);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchBrandData();
+  }, []);
 
-useEffect(() => {
-  const fetchVariantData = async () => {
-    if (!selectedCategory) return; // Avoid making the call if no category is selected
-    try {
-      const { variants, variantsSet } = await fetchVariants(selectedCategory); // Use selectedCategory directly
-      setVariant(variants);
-      setVariantSet(variantsSet);
-    } catch (err) {
-      console.log("Error fetching variants:", err);
-    }
-  };
+  useEffect(() => {
+    const fetchVariantData = async () => {
+      if (!selectedCategory) return; // Avoid making the call if no category is selected
+      try {
+        const { variants, variantsSet } = await fetchVariants(selectedCategory); // Use selectedCategory directly
+        setVariant(variants);
+        setVariantSet(variantsSet);
+      } catch (err) {
+        console.log("Error fetching variants:", err);
+      }
+    };
 
-  fetchVariantData(); // Call the function to fetch data
-}, [selectedCategory]);
-
-
+    fetchVariantData(); // Call the function to fetch data
+  }, [selectedCategory]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -149,370 +275,248 @@ useEffect(() => {
     console.log(data);
   };
 
+  const form = useForm({
+    defaultValues: {
+      invoiceItems: [INITIAL_GRN_ITEM],
+    },
+  });
+
+  const {
+    fields: invoiceItems,
+    append: appendInvoiceItems,
+    remove: removeInvoiceItems,
+    update: updateInvoiceItems,
+  } = useFieldArray({
+    name: "invoiceItems",
+    control: form.control,
+  });
+
   return (
     <div className="p-5">
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Header Table */}
-        <table className="w-full divide-y divide-gray-200 text-sm">
-          <tbody className="bg-white divide-y divide-gray-200">
-            <tr>
-              <td className="px-4 py-1 whitespace-nowrap text-lg font-bold text-black">
-                Enter New Stock
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="flex flex-col gap-10">
+          <h2 className="text-lg font-bold">Enter New Stock</h2>
 
-        {/* Form Table */}
-        <table className="w-full divide-y divide-gray-200">
-          <tbody>
-            <tr>
-              <td className="px-1 py-1">
-                <div className="flex items-start mb-4">
-                  <div className="mr-4">
-                    <h1 className="text-sm">Supplier Name</h1>
-                    <input
-                      type="text"
-                      className="w-64 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      {...register("supplierName", {
-                        required: "Supplier Name is required",
-                      })}
+          <div className="flex flex-col gap-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-10">
+                <div className="flex flex-col gap-2">
+                  <Label>Select Representative</Label>
+                  <div className="flex gap-2 relative">
+                    <Input
+                      onChange={(e) => {
+                        setSearchRepresentative(e.target.value);
+                        setActiveRepresentative(undefined);
+                      }}
                     />
-                    {errors.supplierName && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.supplierName.message}
-                      </p>
-                    )}
+                    <Button
+                      size="icon"
+                      onClick={() => router.push("/supplier")}
+                    >
+                      <Plus />
+                    </Button>
+                    <ul
+                      className={cn(
+                        "absolute flex flex-col gap-2 bg-background drop-shadow shadow-lg w-full p-4 mt-12 text-sm transition-all duration-200",
+                        !activeRepresentative && searchRepresentative.length > 5
+                          ? "opacity-100 z-10"
+                          : "opacity-0 -z-10"
+                      )}
+                    >
+                      {REPRESENTATIVES.map((rep: any) => (
+                        <li key={rep.phone}>
+                          <button
+                            className="py-1 text-start"
+                            onClick={() => setActiveRepresentative(rep)}
+                          >
+                            {rep.name} - {rep.phone}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-              </td>
-              <td className="px-4 py-1">
-                <div className="flex items-start mb-4">
-                  <div className="mr-4">
-                    <h1 className="text-sm">GRN No</h1>
-                    <input
-                      type="text"
-                      className="w-36 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      {...register("grnNo", { required: "GRN No is required" })}
-                    />
-                    {errors.grnNo && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.grnNo.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </td>
-              <td className="px-40 py-1 flex justify-end">
-                <div className="flex mb-4 w-auto justify-end">
-                  <div className="mr-4 w-auto">
-                    <h1 className="text-sm text-right">Balance</h1>
-                    <h2 className="text-4xl font-bold text-black">10,000.00</h2>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td className="px-1 py-1">
-                <div className="flex items-start mb-4">
-                  <div className="mr-4">
-                    <h1 className="text-sm">Order Recovered By</h1>
-                    <input
-                      type="tel"
-                      className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      {...register("orderRecoveredBy", {
-                        required: "Order Recovered By is required",
-                      })}
-                    />
-                    {errors.orderRecoveredBy && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.orderRecoveredBy.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </td>
-              <td className="px-4 py-1">
-                <div className="flex items-start mb-4">
-                  <div className="mr-4">
-                    <h1 className="text-sm">Date</h1>
-                    <input
-                      type="date"
-                      className="w-36 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      {...register("date", { required: "Date is required" })}
-                    />
-                    {errors.date && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.date.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
 
-        {/* Items Table */}
-        <table className="w-auto">
-          <thead>
-            <tr>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Category
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Brand
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Variant
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Value
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Qty
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                GRN Type
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Cost Price (Rs.)
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Amount (Rs.)
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Selling Price (Rs.)
-              </th>
-              <th className="px-1 py-1"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {fields.map((field, index) => (
-              <tr key={field.id}>
-                <td className="px-1 py-1 w-auto">
-                <select
-                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register(`items.${index}.Category`, {
-                  required: "Category is required",
-                })}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="">Select Category</option>
-                {category.map((item) => (
-                  <option key={item.id} value={item.id}>
-                   {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {/* {errors.items?.[index]?.Category && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.items[index]?.Category?.message}
-                </p>
-              )} */}
-            </td>
-            <td className="px-1 py-1 w-auto">
-              <select
-                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register(`items.${index}.brand`, {
-                  required: "Brand is required",
-                })}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-              >
-                <option value="">Select Brand</option>
-                {brand.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {/* {errors.items?.[index]?.brand && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.items[index]?.brand?.message}
-                </p> */}
-              )}
-            </td>
-                <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.variant`, {
-                      required: "Variant is required",
-                    })}
-                  >
-                    <option value="">Select Variant</option>
-                    {/* Add brands here */}
-                  </select>
-                  {/* {errors.items?.[index]?.variant && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.variant?.message}
-                    </p>
-                  )} */}
-                </td>
-                <td className="px-1 py-1 w-auto">
-              <select
-                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register(`items.${index}.variant`, {
-                  required: "Variant is required",
-                })}
-                onChange={(e) => setSelectedVariants(e.target.value)}
-              >
-                <option value="">Select Variant</option>
-                {variantSets.map((item) => (
-                  <option key={item.id} value={item.id}>
-                 {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {/* {errors.items?.[index]?.variant && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.items[index]?.variant?.message}
-                </p>
-              )} */}
-            </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    type="number"
-                    className="w-12 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.quantity`, {
-                      required: "Quantity is required",
-                    })}
-                  />
-                  {/* {errors.items?.[index]?.quantity && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.quantity?.message}
-                    </p>
-                  )} */}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.grnType`, {
-                      required: "GRN Type is required",
-                    })}
-                  >
-                    <option value="General">General</option>
-                    <option value="Special">Style</option>
-                  </select>
-                  {/* {errors.items?.[index]?.grnType && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.grnType?.message}
-                    </p>
-                  )} */}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.costPrice`, {
-                      required: "Cost Price is required",
-                    })}
-                  />
-                  {/* {errors.items?.[index]?.costPrice && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.costPrice?.message}
-                    </p>
-                  )} */}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.amount`, {
-                      required: "Amount is required",
-                    })}
-                  />
-                  {/* {errors.items?.[index]?.amount && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.amount?.message}
-                    </p> )} */}
-                  
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.sellingPrice`, {
-                      required: "Selling Price is required",
-                    })}
-                  />
-                  {errors.items?.[index]?.sellingPrice && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.sellingPrice?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1">
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="text-red-500"
-                  >
-                    <AiFillCloseSquare size={20} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                {activeRepresentative && (
+                  <div className="flex flex-col gap-2">
+                    <Label>Selected Representative</Label>
+                    {activeRepresentative?.name} - {activeRepresentative?.phone}
+                  </div>
+                )}
+              </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            append({
-              Category: "",
-              brand: "",
-              variant: "",
-              value: "",
-              quantity: 1,
-              grnType: "General",
-              costPrice: "",
-              amount: "",
-              sellingPrice: "",
-            })
-          }
-          className="mt-4 flex items-center justify-center text-blue-500"
-        >
-          <PlusSquare className="mr-2" />
-          Add Row
-        </button>
-
-        {/* Footer Section */}
-        <div className="flex flex-row justify-between">
-          <div className="flex-col p-5 w-full">
-            <label className="block text-gray-700 text-sm mb-2 p-2">Note</label>
-            <textarea
-              id="textarea"
-              name="textarea"
-              className="mt-1 block w-full h-fit px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              rows={5}
-              placeholder="Type a description..."
-              {...register("note")}
-            />
+              <div className="flex flex-col gap-2 text-end">
+                <Label className="opacity-90">Balance</Label>
+                <p className="text-4xl font-bold">5000.00</p>
+              </div>
+            </div>
           </div>
 
-          <div className="flex-col p-5">
-            <div className="flex flex-col">
-              <div className="p-5">
-                <button
-                  type="button"
-                  className="flex items-center px-10 py-1 space-x-3 rounded-md h-10 w-fit bg-white text-sm text-blue-500 shadow-sm hover:bg-gray-100 hover:text-blue-500"
-                >
-                  Cancel
-                </button>
-              </div>
-              <div className="p-5">
-                <button
-                  type="button"
-                  className="flex items-center px-10 py-1 space-x-3 rounded-md h-10 w-fit border-2 border-blue-500 bg-white text-sm text-blue-500 shadow-sm hover:bg-gray-100 hover:text-blue-500"
-                >
-                  Print
-                </button>
-              </div>
-              <div className="p-5">
-                <button
-                  type="submit"
-                  className="flex items-center px-10 py-3 space-x-3 rounded-md h-10 w-fit bg-blue-500 text-sm text-white shadow-sm hover:bg-blue-600 hover:text-white"
-                >
-                  Save
-                </button>
-              </div>
+          <div className="border rounded">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-48">Brand</TableHead>
+                  <TableHead className="w-48">Category</TableHead>
+                  <TableHead className="w-48">VariantIds</TableHead>
+                  <TableHead className="text-right w-28">Qty</TableHead>
+                  <TableHead className="text-right w-36">
+                    Cost Price (Rs.)
+                  </TableHead>
+                  <TableHead className="text-right w-36">
+                    Selling Price (Rs.)
+                  </TableHead>
+                  <TableHead className="text-right w-36">
+                    Max Discount
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invoiceItems.map((row, i) => (
+                  <TableRow key={`${row.id}-${i}`} className="border-none">
+                    {/* brand cell */}
+                    <TableCell className="py-2">
+                      <Select
+                        onValueChange={(value) =>
+                          updateInvoiceItems(i, {
+                            ...row, // Only update the brandId
+                            brandId: value,
+                          })
+                        }
+                        value={row.brandId} // Controlled input
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a brand" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {brand.map((item) => (
+                              <SelectItem key={item.id} value={item.id}>
+                                {item.name.charAt(0).toUpperCase() +
+                                  item.name.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    {/* category cell */}
+                    <TableCell className="py-2">
+                      <Select
+                        onValueChange={(value) => {
+                          setSelectedCategory(value);
+                          updateInvoiceItems(i, {
+                            ...row, // Only update the categoryId
+                            categoryId: value,
+                          });
+                        }}
+                        value={row.categoryId} // Controlled input
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {category.map((item) => (
+                              <SelectItem key={item.id} value={item.id}>
+                                {item.name.charAt(0).toUpperCase() +
+                                  item.name.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    {/* variants cell */}
+                    <TableCell className="py-2">
+                      <Select
+                        onValueChange={(value) => {
+                          setSelectedVariants(value);
+                          updateInvoiceItems(i, {
+                            ...row, // Only update the variantId
+                            variantId: value,
+                          });
+                        }}
+                        value={row.variantId} // Controlled input
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a variant" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {variant.map((item) => (
+                              <SelectItem key={item.id} value={item.id}>
+                                {item.name.charAt(0).toUpperCase() +
+                                  item.name.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-right py-2">
+                      <Input className="text-right" />
+                    </TableCell>
+                    <TableCell className="text-right py-2">
+                      <Input className="text-right" />
+                    </TableCell>
+                    <TableCell className="text-right py-2">
+                      <Input className="text-right" />
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <Input
+                        onChange={(e) =>
+                          updateInvoiceItems(i, {
+                            ...row, // Only update the discount field
+                            maxDiscount: e.target.value,
+                          })
+                        }
+                        className="text-right"
+                        value={row.maxDiscount} // Controlled input
+                      />
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <button
+                        className="float-right"
+                        onClick={() => {
+                          if (invoiceItems.length > 1) removeInvoiceItems(i);
+                        }}
+                      >
+                        <X className="text-destructive w-5 h-5" />
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow className="hover:bg-background">
+                  {/* category cell */}
+                  <TableCell colSpan={7} className="pt-0">
+                    <Button
+                      variant="outline"
+                      className="w-full uppercase font-bold text-foreground/60 hover:text-foreground/70"
+                      onClick={() => appendInvoiceItems(INITIAL_GRN_ITEM)}
+                    >
+                      Add Item +
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex gap-20">
+            <div className="flex w-3/4 flex-col gap-2">
+              <Label>Note</Label>
+              <Textarea placeholder="Type here..." className="h-full" />
+            </div>
+
+            <div className="flex w-1/4 items-end flex-col-reverse flex-col gap-5">
+              <Button className="w-20">Save</Button>
+              <Button variant="outline" className="w-20">
+                Print
+              </Button>
+              <Button variant="secondary" className="w-20">
+                Cancel
+              </Button>
             </div>
           </div>
         </div>
