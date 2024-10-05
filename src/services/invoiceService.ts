@@ -18,9 +18,9 @@ export const fetchInvoices = async () => {
 };
 
 // Add a new invoice
-export const addInvoice = async (invoiceData: any) => {
+export const addInvoice = async (invoicePayload: any) => {
     try {
-      const response = await apiClient.post('/invoice', invoiceData);
+      const response = await apiClient.post('/invoice', invoicePayload);
       if (response.data && response.data.data) {
         return response.data.data; // Assuming the created invoice is returned in the response
       } else {
