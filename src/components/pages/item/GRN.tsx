@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { fetchSuppliers } from "@/services/supplierService";
+import { fetchReps } from "@/services/repService";
 import { Label } from "@radix-ui/react-label";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -58,79 +58,6 @@ interface Representative {
 }
 
 
-const REPRESENTATIVES: Representative[] = [
-  {
-    id: "698f329b-7555-4c3e-9a7a-b19869a96b86",
-    name: "Urvi Konda",
-    phone: "+94771234567",
-    email: "bijuhanda@yahoo.com",
-    description: "Quis odio reiciendis cum.",
-    createdAt: "2021-12-14T00:21:06",
-    updatedAt: "2024-01-27T15:43:15",
-    supplier: {
-      name: "Butala, Saxena and Chanda",
-      code: "SUP508",
-      id: "08e48d08-7f52-44c5-afcd-1525349bc804",
-    },
-  },
-  {
-    id: "484071d5-7216-4d85-9419-3227a7d4555c",
-    name: "Divyansh Doshi",
-    phone: "+94772234567",
-    email: "tejaskade@krish-mane.com",
-    description: "Fugit culpa eos repudiandae repudiandae veniam.",
-    createdAt: "2022-02-11T08:53:52",
-    updatedAt: "2024-01-12T02:23:10",
-    supplier: {
-      name: "Bains LLC",
-      code: "SUP593",
-      id: "8ac7c107-4a47-4592-bfe8-7e868844e934",
-    },
-  },
-  {
-    id: "22a86859-ff29-4b80-8b51-8f30fb355e32",
-    name: "Nirvaan Bahl",
-    phone: "+94773234567",
-    email: "jcontractor@gmail.com",
-    description: "Deleniti dolores veniam sint.",
-    createdAt: "2021-12-12T13:45:47",
-    updatedAt: "2024-01-01T14:01:25",
-    supplier: {
-      name: "Dass Ltd",
-      code: "SUP784",
-      id: "8c1d343c-05d7-478d-8b2e-472c099e647a",
-    },
-  },
-  {
-    id: "81ab3e89-5834-43d1-b6dd-57bbd48559c2",
-    name: "Damini Kota",
-    phone: "+94774234567",
-    email: "swaminathansaksham@yahoo.com",
-    description: "Aperiam necessitatibus veniam eveniet.",
-    createdAt: "2022-01-24T22:18:17",
-    updatedAt: "2024-08-31T20:13:14",
-    supplier: {
-      name: "Aurora, Sachdev and Mahal",
-      code: "SUP239",
-      id: "f8e311b1-21e2-4a35-a02c-7608776c163d",
-    },
-  },
-  {
-    id: "1b4dbf07-47c7-4cc7-a6fe-3dee8e88917b",
-    name: "Damini Chaudhuri",
-    phone: "+94775234567",
-    email: "daliajivika@hotmail.com",
-    description: "Voluptatum nulla harum ipsam velit error.",
-    createdAt: "2022-06-07T04:16:36",
-    updatedAt: "2024-06-29T03:53:16",
-    supplier: {
-      name: "Chahal-Wable",
-      code: "SUP853",
-      id: "9fae862a-a0f5-4b16-a9a8-443e3546f7df",
-    },
-  },
-];
-
 const INITIAL_GRN_ITEM = {
   categoryId: "banana",
   brandId: "apple",
@@ -150,7 +77,7 @@ const INITIAL_SERVICE = {
 const CreateInvoice = () => {
   const [searchRepresentative, setSearchRepresentative] = useState("");
   const [activeRepresentative, setActiveRepresentative] = useState< Representative | undefined>(undefined);
-  const [supplier, setSupplier] = useState<Supplier[]>([]);
+  const [rep, setRef] = useState<Supplier[]>([]);
   const router = useRouter();
 
   const {
@@ -179,16 +106,16 @@ const CreateInvoice = () => {
 
   // Fetch supplier data from the API
   useEffect(() => {
-    const fetchSuppliersData = async () => {
+    const fetchRepsData = async () => {
       try {
-        const suppliersData = await fetchSuppliers(); // Fetch suppliers from the API
-        setSupplier(suppliersData);
+        const fetchData = await fetchReps(); // Fetch suppliers from the API
+        setRef(fetchData);
       } catch (error) {
         console.log("Failed to fetch suppliers.", error);
       }
     };
 
-    fetchSuppliersData();
+    fetchRepsData();
   }, []);
 
  
@@ -217,13 +144,11 @@ const CreateInvoice = () => {
     control: form.control,
   });
   
-
   return (
     <div className="p-5">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-10">
           <h2 className="text-lg font-bold">Enter New Stock</h2>
-
           <div className="flex flex-col gap-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-10">
@@ -250,7 +175,7 @@ const CreateInvoice = () => {
                           : "opacity-0 -z-10"
                       )}
                     >
-                      {supplier.map((rep: any) => (
+                      {rep.map((rep: any) => (
                         <li key={rep.phone}>
                           <button
                             className="py-1 text-start"
