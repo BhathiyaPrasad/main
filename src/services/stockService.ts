@@ -47,3 +47,22 @@ export const fetchStock = async (categoryId: string, selectedVariants: string[])
     throw error;
   }
 };
+
+
+const addStock = async (stock: any) => {
+  try {
+    // Send the POST request with the stock data
+    const response = await apiClient.post('/stock', stock); // Updated the URL to match your endpoint
+
+    // Check the response data and return accordingly
+    if (response.data && response.data.data) {
+      return response.data.data;
+    } else {
+      console.error('No data in the response:', response.data);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error adding stock:', error);
+    throw error;
+  }
+}
