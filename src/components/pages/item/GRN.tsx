@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { fetchSuppliers } from "@/services/supplierService";
 import { Label } from "@radix-ui/react-label";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import GRNItemRow from './../../tables/CreateStock';
-import { fetchSuppliers } from "@/services/supplierService";
 
 interface FormValues {
   supplierName: string;
@@ -171,7 +171,7 @@ const CreateInvoice = () => {
           costPrice: "",
           amount: "",
           sellingPrice: "",
-          maxDiscount: "0",
+          maxDiscount: 0,
         },
       ],
     },
@@ -179,7 +179,7 @@ const CreateInvoice = () => {
 
   // Fetch supplier data from the API
   useEffect(() => {
-    const fetchSuppliers = async () => {
+    const fetchSuppliersData = async () => {
       try {
         const suppliersData = await fetchSuppliers(); // Fetch suppliers from the API
         setSupplier(suppliersData);
@@ -188,7 +188,7 @@ const CreateInvoice = () => {
       }
     };
 
-    fetchSuppliers();
+    fetchSuppliersData();
   }, []);
 
  
@@ -250,7 +250,7 @@ const CreateInvoice = () => {
                           : "opacity-0 -z-10"
                       )}
                     >
-                      {REPRESENTATIVES.map((rep: any) => (
+                      {supplier.map((rep: any) => (
                         <li key={rep.phone}>
                           <button
                             className="py-1 text-start"

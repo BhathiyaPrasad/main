@@ -1,13 +1,14 @@
 'use client';
 
 import { login } from '@/services/auth'; // Import your login function
+import { useRouter } from 'next/navigation';
 import { useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 
 export default function Login() {
   const logo = "/images/Logo.jpeg";
-
+  const router = useRouter();
   // State for form inputs
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +29,7 @@ export default function Login() {
       // Make the POST request to the backend
       const response = await login(username, password);
       console.log("Login successful!", response);
-      // Here you can handle successful login, e.g., redirecting the user or saving the token
+      router.push("/dashboard"); // Redirect to the dashboard on success
 
     } catch (err: any) {
       setError(err.message); // Set the error message if login fails
