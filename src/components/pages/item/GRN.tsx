@@ -35,8 +35,11 @@ interface FormValues {
     costPrice: string;
     amount: string;
     sellingPrice: string;
+    maxDiscount: number,
   }[];
 }
+
+
 interface Supplier {
   name: string;
   code: string;
@@ -168,6 +171,7 @@ const CreateInvoice = () => {
           costPrice: "",
           amount: "",
           sellingPrice: "",
+          maxDiscount: "0",
         },
       ],
     },
@@ -212,6 +216,7 @@ const CreateInvoice = () => {
     name: "invoiceItems",
     control: form.control,
   });
+  
 
   return (
     <div className="p-5">
@@ -245,7 +250,7 @@ const CreateInvoice = () => {
                           : "opacity-0 -z-10"
                       )}
                     >
-                      {supplier.map((rep: any) => (
+                      {REPRESENTATIVES.map((rep: any) => (
                         <li key={rep.phone}>
                           <button
                             className="py-1 text-start"

@@ -1,16 +1,15 @@
 import { Input } from '@/components/ui/input';
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { fetchBrands } from "@/services/brandService";
 import { fetchCategories } from "@/services/categoryService";
-import { fetchStock } from "@/services/stockService";
 import { fetchVariants } from "@/services/variantService";
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -53,10 +52,11 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
   const [inputQuantity, setInputQuantity] = useState(row.quantity || '');
   const [inputCost, setInputCost] = useState(row.costPrice || '');
   const [inputSale , setInputSale] = useState(row.sellingPrice || '');
+  const [inputMaxDiscount ,  setInputMaxDiscount] = useState(row.maxDiscount || '');
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [stockData, setStockData] = useState<StockData[]>([]);
+  
 
   // Fetch categories
   useEffect(() => {
@@ -98,8 +98,6 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
     fetchVariantData();
   }, [selectedCategory]);
 
-  
-
   // Handlers for each select input
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
@@ -134,11 +132,12 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
 
     updateGRNItems(i, { ...row, sellingPrice: value });
   };
+  const handleMaxDiscount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputMaxDiscount(value);
 
-  const stock = stockData.length > 0 ? stockData[0] : null;
-  const lineTotal = stock && row.quantity
-    ? (Number(row.quantity) * Number(stock.purchasePrice)).toFixed(2)
-    : '0.00';
+    updateGRNItems(i, { ...row, maxDiscount: value });
+  };
 
   return (
     <TableRow key={`${row.id}-${i}`} className="border-none">
@@ -217,6 +216,14 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
           className="text-py-2"
           value={row.sellingPrice}
           placeholder="Enter Sale"
+        />
+      </TableCell>  
+      <TableCell className="text-center py-2">
+      <Input
+          onChange={handleMaxDiscount}
+          className="text-py-2"
+           value={row.maxDiscount}
+          placeholder="Enter Dscount"
         />
       </TableCell>
 
