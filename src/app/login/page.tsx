@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
-import {auth}
+
 
 export default function Login() {
   const logo = "/images/Logo.jpeg";
