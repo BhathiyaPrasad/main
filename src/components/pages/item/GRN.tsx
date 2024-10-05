@@ -1,14 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Table,
   TableBody,
@@ -23,10 +16,11 @@ import { fetchBrands } from "@/services/brandService";
 import { fetchCategories } from "@/services/categoryService";
 import { fetchVariants } from "@/services/variantService";
 import { Label } from "@radix-ui/react-label";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import GRNItemRow from './../../tables/CreateStock';
 
 interface FormValues {
   supplierName: string;
@@ -284,8 +278,8 @@ const CreateInvoice = () => {
   const {
     fields: invoiceItems,
     append: appendInvoiceItems,
-    remove: removeInvoiceItems,
-    update: updateInvoiceItems,
+    remove: removeGRNItems,
+    update: updateGRNItems,
   } = useFieldArray({
     name: "invoiceItems",
     control: form.control,
@@ -337,206 +331,6 @@ const CreateInvoice = () => {
                   </div>
                 </div>
 
-
-<!--         {/* Items Table */}
-        <table className="w-auto">
-          <thead>
-            <tr>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Category
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Brand
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Variant
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Value
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Qty
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                GRN Type
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Cost Price (Rs.)
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Amount (Rs.)
-              </th>
-              <th className="px-1 py-1 text-left text-xs font-medium text-gray-950 tracking-wider">
-                Selling Price (Rs.)
-              </th>
-              <th className="px-1 py-1"></th>
-            </tr>
-          </thead>
-          <tbody>
-<!--             {fields.map((field, index) => (
-              <tr key={field.id}>
-                <td className="px-1 py-1 w-auto">
-                <select
-                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register(`items.${index}.Category`, {
-                  required: "Category is required",
-                })}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="">Select Category</option>
-                {category.map((item) => (
-                  <option key={item.id} value={item.id}>
-                   {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                  </option>
-                ))}
-              </select> -->
-              {/* {errors.items?.[index]?.Category && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.items[index]?.Category?.message}
-                </p>
-              )} */}
-<!--             </td>
-            <td className="px-1 py-1 w-auto">
-              <select
-                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register(`items.${index}.brand`, {
-                  required: "Brand is required",
-                })}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-              >
-                <option value="">Select Brand</option>
-                {brand.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {errors.items?.[index]?.brand && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.items[index]?.brand?.message}
-                </p>
-              )}
-            </td>
-                <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.variant`, {
-                      required: "Variant is required",
-                    })}
-                  >
-                    <option value="">Select Variant</option>
-                    {/* Add brands here */}
-                  </select>
-                  {errors.items?.[index]?.variant && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.variant?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1 w-auto">
-              <select
-                className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register(`items.${index}.variant`, {
-                  required: "Variant is required",
-                })}
-                onChange={(e) => setSelectedVariants(e.target.value)}
-              >
-                <option value="">Select Variant</option>
-                {variantSets.map((item) => (
-                  <option key={item.id} value={item.id}>
-                 {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {errors.items?.[index]?.variant && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.items[index]?.variant?.message}
-                </p>
-              )}
-            </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    type="number"
-                    className="w-12 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.quantity`, {
-                      required: "Quantity is required",
-                    })}
-                  />
-                  {errors.items?.[index]?.quantity && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.quantity?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <select
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.grnType`, {
-                      required: "GRN Type is required",
-                    })}
-                  >
-                    <option value="General">General</option>
-                    <option value="Special">Style</option>
-                  </select>
-                  {errors.items?.[index]?.grnType && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.grnType?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.costPrice`, {
-                      required: "Cost Price is required",
-                    })}
-                  />
-                  {errors.items?.[index]?.costPrice && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.costPrice?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.amount`, {
-                      required: "Amount is required",
-                    })}
-                  />
-                  {errors.items?.[index]?.amount && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.amount?.message}
-                    </p> )}
-                  
-                </td>
-                <td className="px-1 py-1 w-auto">
-                  <input
-                    className="w-32 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    {...register(`items.${index}.sellingPrice`, {
-                      required: "Selling Price is required",
-                    })}
-                  />
-                  {errors.items?.[index]?.sellingPrice && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.items[index]?.sellingPrice?.message}
-                    </p>
-                  )}
-                </td>
-                <td className="px-1 py-1">
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="text-red-500"
-                  >
-                    <AiFillCloseSquare size={20} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table> --> -->
-
                 {activeRepresentative && (
                   <div className="flex flex-col gap-2">
                     <Label>Selected Representative</Label>
@@ -544,7 +338,6 @@ const CreateInvoice = () => {
                   </div>
                 )}
               </div>
-
 
               <div className="flex flex-col gap-2 text-end">
                 <Label className="opacity-90">Balance</Label>
@@ -574,119 +367,14 @@ const CreateInvoice = () => {
               </TableHeader>
               <TableBody>
                 {invoiceItems.map((row, i) => (
-                  <TableRow key={`${row.id}-${i}`} className="border-none">
-                    {/* brand cell */}
-                    <TableCell className="py-2">
-                      <Select
-                        onValueChange={(value) =>
-                          updateInvoiceItems(i, {
-                            ...row, // Only update the brandId
-                            brandId: value,
-                          })
-                        }
-                        value={row.brandId} // Controlled input
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a brand" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {brand.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
-                                {item.name.charAt(0).toUpperCase() +
-                                  item.name.slice(1)}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    {/* category cell */}
-                    <TableCell className="py-2">
-                      <Select
-                        onValueChange={(value) => {
-                          setSelectedCategory(value);
-                          updateInvoiceItems(i, {
-                            ...row, // Only update the categoryId
-                            categoryId: value,
-                          });
-                        }}
-                        value={row.categoryId} // Controlled input
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {category.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
-                                {item.name.charAt(0).toUpperCase() +
-                                  item.name.slice(1)}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    {/* variants cell */}
-                    <TableCell className="py-2">
-                      <Select
-                        onValueChange={(value) => {
-                          setSelectedVariants(value);
-                          updateInvoiceItems(i, {
-                            ...row, // Only update the variantId
-                            variantId: value,
-                          });
-                        }}
-                        value={row.variantId} // Controlled input
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a variant" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {variant.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
-                                {item.name.charAt(0).toUpperCase() +
-                                  item.name.slice(1)}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="text-right py-2">
-                      <Input className="text-right" />
-                    </TableCell>
-                    <TableCell className="text-right py-2">
-                      <Input className="text-right" />
-                    </TableCell>
-                    <TableCell className="text-right py-2">
-                      <Input className="text-right" />
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <Input
-                        onChange={(e) =>
-                          updateInvoiceItems(i, {
-                            ...row, // Only update the discount field
-                            maxDiscount: e.target.value,
-                          })
-                        }
-                        className="text-right"
-                        value={row.maxDiscount} // Controlled input
-                      />
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <button
-                        className="float-right"
-                        onClick={() => {
-                          if (invoiceItems.length > 1) removeInvoiceItems(i);
-                        }}
-                      >
-                        <X className="text-destructive w-5 h-5" />
-                      </button>
-                    </TableCell>
-                  </TableRow>
+                   <GRNItemRow
+                   key={`${row.id}-${i}`}
+                   row={row}
+                   i={i}
+                   updateGRNItems={updateGRNItems}
+                   removeGRNItems={removeGRNItems}
+ 
+                 />
                 ))}
                 <TableRow className="hover:bg-background">
                   {/* category cell */}
