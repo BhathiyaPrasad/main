@@ -4,7 +4,7 @@ import apiClient from "@/lib/axios";
 export const checkAuth = async () => {
   try {
     // Make the GET request to check if the user is authenticated
-    const response = await apiClient.get('/me');
+    const response = await apiClient.get('/auth/me');
     
     // Assuming the server returns a status code or a token to indicate auth success
     if (response.status === 200 && response.data) {
