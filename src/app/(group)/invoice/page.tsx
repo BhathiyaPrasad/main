@@ -52,7 +52,8 @@ const INITIAL_INVOICE_ITEM = {
   rate: "",
   amount: "",
   discount: "0",
-  discountType:"AMOUNT"
+  discountType:"AMOUNT",
+  stockId: "",
 };
 
 const INITIAL_SERVICE = {
@@ -65,7 +66,7 @@ export default function Invoice() {
   const [isMounted, setIsMounted] = useState(false);
   const [customer, setCustomer] = useState<Customer[]>([]);
   const [date, setDate] = useState<Date | null>(null);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [note, setNote] = useState('');
   const [totalPayment, setTotalPayment] = useState(0);
@@ -88,7 +89,7 @@ export default function Invoice() {
   const form = useForm({
     defaultValues: {
       userId: '',
-      customerId: customer,
+      customerId: '',
       note: note,
       paymentMethod: paymentMethod,
       payment: totalPayment,
@@ -127,7 +128,7 @@ export default function Invoice() {
   useEffect(() => {
     if (selectedCustomer) {
       form.reset({
-        customer: selectedCustomer,
+        customerId: selectedCustomer,
         invoiceItems: [INITIAL_INVOICE_ITEM],
         services: [INITIAL_SERVICE],
         paymentMethod: paymentMethod,
@@ -140,7 +141,7 @@ export default function Invoice() {
 
   console.log({ invoiceItems })
 
-  const handleCustomerSelect = (customer) => {
+  const handleCustomerSelect = (customer:Customer) => {
     setSelectedCustomer(customer);
   };
   const router = useRouter();
