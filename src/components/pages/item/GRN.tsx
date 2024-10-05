@@ -68,18 +68,29 @@ const INITIAL_GRN_ITEM = {
   maxDiscount: "0",
 };
 
-const INITIAL_SERVICE = {
-  name: "",
-  serviceCharge: "",
-  discount: "0",
-};
+
+
+interface Rep {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  supplier: Supplier;
+}
 
 const CreateInvoice = () => {
   const [searchRepresentative, setSearchRepresentative] = useState("");
-  const [activeRepresentative, setActiveRepresentative] = useState< Representative | undefined>(undefined);
+  const [activeRepresentative, setActiveRepresentative] = useState<Representative | undefined>(undefined);
   const [rep, setRef] = useState<Supplier[]>([]);
+  const [totalPayment, setTotalPayment] = useState(0);
+  const [note, setNote] = useState('');
   const router = useRouter();
-
+  const [selectedRep, setSelectedRep] = useState<Rep | undefined>(
+    undefined
+  );
   const {
     register,
     handleSubmit,
@@ -118,7 +129,7 @@ const CreateInvoice = () => {
     fetchRepsData();
   }, []);
 
- 
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
@@ -130,6 +141,9 @@ const CreateInvoice = () => {
 
   const form = useForm({
     defaultValues: {
+      repId: '',
+      note: '',
+      payment: 0,
       invoiceItems: [INITIAL_GRN_ITEM],
     },
   });
@@ -143,7 +157,24 @@ const CreateInvoice = () => {
     name: "invoiceItems",
     control: form.control,
   });
-  
+  const handleRepSelect = (rep: Rep) => {
+    setSelectedRep(rep);
+  };
+
+  useEffect(() => {
+    if (selectedRep) {
+      form.reset({
+        repId: selectedRep,
+        invoiceItems: [INITIAL_GRN_ITEM],
+        note: note,
+        payment: totalPayment
+
+      });
+    }
+  }, [selectedRep, form, totalPayment, note]);
+
+  console.log({ invoiceItems })
+
   return (
     <div className="p-5">
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -179,7 +210,7 @@ const CreateInvoice = () => {
                         <li key={rep.phone}>
                           <button
                             className="py-1 text-start"
-                            onClick={() => setActiveRepresentative(rep)}
+                            onClick={() => { setActiveRepresentative(rep); handleRepSelect(rep) }}
                           >
                             {rep.name} - {rep.phone}
                           </button>
@@ -225,14 +256,14 @@ const CreateInvoice = () => {
               </TableHeader>
               <TableBody>
                 {invoiceItems.map((row, i) => (
-                   <GRNItemRow
-                   key={`${row.id}-${i}`}
-                   row={row}
-                   i={i}
-                   updateGRNItems={updateGRNItems}
-                   removeGRNItems={removeGRNItems}
- 
-                 />
+                  <GRNItemRow
+                    key={`${row.id}-${i}`}
+                    row={row}
+                    i={i}
+                    updateGRNItems={updateGRNItems}
+                    removeGRNItems={removeGRNItems}
+
+                  />
                 ))}
                 <TableRow className="hover:bg-background">
                   {/* category cell */}
