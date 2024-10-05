@@ -12,15 +12,13 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { fetchBrands } from "@/services/brandService";
-import { fetchCategories } from "@/services/categoryService";
-import { fetchVariants } from "@/services/variantService";
 import { Label } from "@radix-ui/react-label";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import GRNItemRow from './../../tables/CreateStock';
+import { fetchSuppliers } from "@/services/supplierService";
 
 interface FormValues {
   supplierName: string;
@@ -56,27 +54,6 @@ interface Representative {
   supplier: Supplier;
 }
 
-interface Brand {
-  name: string;
-  code: string;
-  id: string;
-}
-interface Category {
-  name: string;
-  code: string;
-  id: string;
-}
-
-interface Variant {
-  name: string;
-  code: string;
-  id: string;
-}
-interface VariantSets {
-  name: string;
-  code: string;
-  id: string;
-}
 
 const REPRESENTATIVES: Representative[] = [
   {
@@ -169,19 +146,8 @@ const INITIAL_SERVICE = {
 
 const CreateInvoice = () => {
   const [searchRepresentative, setSearchRepresentative] = useState("");
-  const [activeRepresentative, setActiveRepresentative] = useState<
-    Representative | undefined
-  >(undefined);
-
+  const [activeRepresentative, setActiveRepresentative] = useState< Representative | undefined>(undefined);
   const [supplier, setSupplier] = useState<Supplier[]>([]);
-  const [category, setCategory] = useState<Category[]>([]);
-  const [brand, setBrand] = useState<Brand[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [variant, setVariant] = useState<Variant[]>([]);
-  const [variantSets, setVariantSet] = useState<VariantSets[]>([]);
-  const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
-  const [selectedBrand, setSelectedBrand] = useState("");
-
   const router = useRouter();
 
   const {
@@ -211,8 +177,8 @@ const CreateInvoice = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await fetchSuppliers(); // Fetch suppliers from the API
-        setSupplier(response);
+        const suppliersData = await fetchSuppliers(); // Fetch suppliers from the API
+        setSupplier(suppliersData);
       } catch (error) {
         console.log("Failed to fetch suppliers.", error);
       }
@@ -221,45 +187,7 @@ const CreateInvoice = () => {
     fetchSuppliers();
   }, []);
 
-  useEffect(() => {
-    const fetchCategoryData = async () => {
-      try {
-        const { categories } = await fetchCategories();
-        setCategory(categories);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchCategoryData();
-  }, []);
-
-  useEffect(() => {
-    const fetchBrandData = async () => {
-      try {
-        const { brands } = await fetchBrands();
-        setBrand(brands);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchBrandData();
-  }, []);
-
-  useEffect(() => {
-    const fetchVariantData = async () => {
-      if (!selectedCategory) return; // Avoid making the call if no category is selected
-      try {
-        const { variants, variantsSet } = await fetchVariants(selectedCategory); // Use selectedCategory directly
-        setVariant(variants);
-        setVariantSet(variantsSet);
-      } catch (err) {
-        console.log("Error fetching variants:", err);
-      }
-    };
-
-    fetchVariantData(); // Call the function to fetch data
-  }, [selectedCategory]);
-
+ 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
@@ -317,7 +245,7 @@ const CreateInvoice = () => {
                           : "opacity-0 -z-10"
                       )}
                     >
-                      {REPRESENTATIVES.map((rep: any) => (
+                      {supplier.map((rep: any) => (
                         <li key={rep.phone}>
                           <button
                             className="py-1 text-start"
