@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import {
   Table,
   TableBody,
@@ -39,7 +38,6 @@ interface FormValues {
   }[];
 }
 
-
 interface Supplier {
   name: string;
   code: string;
@@ -57,18 +55,16 @@ interface Representative {
   supplier: Supplier;
 }
 
-
 const INITIAL_GRN_ITEM = {
   categoryId: "banana",
   brandId: "apple",
   variantIds: [""],
+  variantId: [""],
   qty: 1,
   sellingPrice: "",
   buyingPrice: 0,
   maxDiscount: "0",
 };
-
-
 
 interface Rep {
   id: string;
@@ -178,14 +174,11 @@ const CreateInvoice = () => {
 
   console.log({ invoiceItems })
 
- 
-  
-
   const onSubmit = async (formData: FormValues) => {
    
     const stockItemsPayloads: StockItemPayload[] = invoiceItems.map(item => ({
       categoryId: item.categoryId,
-      variantIds: [item.variantIds[0]], // Assuming variantIds is an array with a valid cuid
+      variantIds: [item.variantId], // Assuming variantIds is an array with a valid cuid
       discountType: "AMOUNT", // Set this as per your requirement
       maxDiscount: Number(item.maxDiscount) || 0, // Optional
       qty: item.qty,
