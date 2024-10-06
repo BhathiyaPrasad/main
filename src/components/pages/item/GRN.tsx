@@ -34,7 +34,7 @@ interface FormValues {
     grnType: string;
     costPrice: string;
     amount: string;
-    sellingPrice: string;
+    sellingPrice: number;
     maxDiscount: number,
   }[];
 }
@@ -64,7 +64,7 @@ const INITIAL_GRN_ITEM = {
   variantIds: [""],
   qty: 1,
   sellingPrice: "",
-  buyingPrice: "",
+  buyingPrice: 0,
   maxDiscount: "0",
 };
 
@@ -81,6 +81,11 @@ interface Rep {
   supplier: Supplier;
 }
 
+interface StockItemPayload {
+  categoryId: string;
+  
+  // other fields
+}
 const CreateInvoice = () => {
   const [searchRepresentative, setSearchRepresentative] = useState("");
   const [activeRepresentative, setActiveRepresentative] = useState<Representative | undefined>(undefined);
@@ -108,7 +113,7 @@ const CreateInvoice = () => {
           grnType: "General",
           costPrice: "",
           amount: "",
-          sellingPrice: "",
+          sellingPrice: 0,
           maxDiscount: 0,
         },
       ],
@@ -165,13 +170,11 @@ const CreateInvoice = () => {
     if (selectedRep) {
       form.reset({
         repId: selectedRep?.id || '',
-        invoiceItems: [INITIAL_GRN_ITEM],
-        note: note,
-        payment: totalPayment
+       
 
       });
     }
-  }, [selectedRep, form, totalPayment, note]);
+  }, [selectedRep]);
 
   console.log({ invoiceItems })
 
@@ -179,22 +182,23 @@ const CreateInvoice = () => {
   
 
   const onSubmit = async (formData: FormValues) => {
-    // Structure the invoice items for the API payload
-    const stockItemsPayload = formData.items.map((item) => ({
-      categoryId: item.Category, // Assuming Category is a string with a valid cuid
-      variantIds: [item.variant], // Assuming variant is a string with a valid cuid
+   
+    const stockItemsPayloads: StockItemPayload[] = invoiceItems.map(item => ({
+      categoryId: item.categoryId,
+      variantIds: [item.variantIds[0]], // Assuming variantIds is an array with a valid cuid
       discountType: "AMOUNT", // Set this as per your requirement
-      maxDiscount: item.maxDiscount || undefined, // Optional
-      qty: item.quantity,
-      buyingPrice: parseFloat(item.costPrice), // Convert cost price to a number
-      sellingPrice: parseFloat(item.sellingPrice), // Convert selling price to a number
+      maxDiscount: Number(item.maxDiscount) || 0, // Optional
+      qty: item.qty,
+      buyingPrice: Number(item.buyingPrice), // Convert buyingPrice to a number
+      sellingPrice: Number(item.sellingPrice),
+      
     }));
   
     // Prepare the stock payload
     const stockPayload = {
       repId: selectedRep?.id || "", // Assuming you have a selectedRep with an id
       note: note || undefined, // Optional note from the state
-      items: stockItemsPayload,
+      items: stockItemsPayloads,
     };
   
     console.log("Payload for Stock:", stockPayload);

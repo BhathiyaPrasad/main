@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create a central axios instance with default settings
 const apiClient = axios.create({
-  baseURL: "http://88.222.212.129:3200/v1", // Set your API base URL
+  baseURL: "http://localhost:8000/v1", // Set your API base URL
   timeout: 10000, // Optional timeout (in ms)
   withCredentials: true,
 });

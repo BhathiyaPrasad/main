@@ -99,9 +99,9 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
   }, [selectedCategory]);
 
   // Handlers for each select input
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = (index: number, value: string) => {
     setSelectedCategory(value);
-    updateGRNItems(i, { ...row, categoryId: value });
+    updateGRNItems(index, { ...row, categoryId: value });
   };
 
   const handleBrandChange = (value: string) => {
@@ -124,7 +124,7 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
     const value = e.target.value;
     setInputCost(value);
 
-    updateGRNItems(i, { ...row, costPrice: value });
+    updateGRNItems(i, { ...row, buyingPrice: value });
   };
   const handleSellingPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -138,25 +138,28 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
 
     updateGRNItems(i, { ...row, maxDiscount: value });
   };
-
+  
   return (
     <TableRow key={`${row.id}-${i}`} className="border-none">
-      <TableCell className="py-2">
-        <Select onValueChange={handleCategoryChange} value={selectedCategory}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {categories.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                  {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </TableCell>
+        <TableCell key={row.id} className="py-2">
+          <Select
+            onValueChange={(value) => handleCategoryChange(i, value)}
+            value={row.categoryId}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </TableCell>
 
       <TableCell className="py-2">
         <Select onValueChange={handleBrandChange} value={selectedBrand}>
@@ -205,7 +208,7 @@ const GRNItemRow: React.FC<GRNItemRowProps> = ({
       <Input
           onChange={handleCostPriceChange}
           className="text-py-2"
-          value={row.costPrice}
+          value={row.buyingPrice}
           placeholder="Enter Cost"
         />
       </TableCell>
