@@ -128,7 +128,7 @@ export default function Invoice() {
   useEffect(() => {
     if (selectedCustomer) {
       form.reset({
-        customerId: selectedCustomer,
+        customerId: selectedCustomer?.id || '',
         invoiceItems: [INITIAL_INVOICE_ITEM],
         services: [INITIAL_SERVICE],
         paymentMethod: paymentMethod,

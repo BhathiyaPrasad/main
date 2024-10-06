@@ -164,7 +164,7 @@ const CreateInvoice = () => {
   useEffect(() => {
     if (selectedRep) {
       form.reset({
-        repId: selectedRep,
+        repId: selectedRep?.id || '',
         invoiceItems: [INITIAL_GRN_ITEM],
         note: note,
         payment: totalPayment
@@ -212,11 +212,6 @@ const CreateInvoice = () => {
       console.error("Error while creating stock:", error);
     }
   };
-
-
-
-
-
 
   return (
     <div className="p-5">
