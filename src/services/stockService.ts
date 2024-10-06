@@ -52,7 +52,7 @@ export const fetchStock = async (categoryId: string, selectedVariants: string[])
 export const addStock = async (stock: any) => {
   try {
     // Send the POST request with the stock data
-    const response = await apiClient.post('/stock', stock); // Updated the URL to match your endpoint
+    const response = await apiClient.post('/grn', stock); // Updated the URL to match your endpoint
 
     // Check the response data and return accordingly
     if (response.data && response.data.data) {

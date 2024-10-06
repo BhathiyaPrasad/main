@@ -13,13 +13,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { fetchReps } from "@/services/repService";
+import { addStock } from "@/services/stockService"; // Ensure you import your stock API service
 import { Label } from "@radix-ui/react-label";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import GRNItemRow from './../../tables/CreateStock';
-
 interface FormValues {
   supplierName: string;
   grnNo: string;
@@ -135,9 +135,9 @@ const CreateInvoice = () => {
     name: "items",
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log(data);
-  };
+  // const onSubmit = (data: FormValues) => {
+  //   console.log(data);
+  // };
 
   const form = useForm({
     defaultValues: {
@@ -174,6 +174,49 @@ const CreateInvoice = () => {
   }, [selectedRep, form, totalPayment, note]);
 
   console.log({ invoiceItems })
+
+ 
+  
+
+  const onSubmit = async (formData: FormValues) => {
+    // Structure the invoice items for the API payload
+    const stockItemsPayload = formData.items.map((item) => ({
+      categoryId: item.Category, // Assuming Category is a string with a valid cuid
+      variantIds: [item.variant], // Assuming variant is a string with a valid cuid
+      discountType: "AMOUNT", // Set this as per your requirement
+      maxDiscount: item.maxDiscount || undefined, // Optional
+      qty: item.quantity,
+      buyingPrice: parseFloat(item.costPrice), // Convert cost price to a number
+      sellingPrice: parseFloat(item.sellingPrice), // Convert selling price to a number
+    }));
+  
+    // Prepare the stock payload
+    const stockPayload = {
+      repId: selectedRep?.id || "", // Assuming you have a selectedRep with an id
+      note: note || undefined, // Optional note from the state
+      items: stockItemsPayload,
+    };
+  
+    console.log("Payload for Stock:", stockPayload);
+  
+    // Make API call to post the stock
+    try {
+      const result = await addStock(stockPayload);
+      if (result) {
+        console.log("Stock created successfully:", result);
+        // Optionally, redirect or show a success message
+      } else {
+        console.error("Failed to create stock");
+      }
+    } catch (error) {
+      console.error("Error while creating stock:", error);
+    }
+  };
+
+
+
+
+
 
   return (
     <div className="p-5">
