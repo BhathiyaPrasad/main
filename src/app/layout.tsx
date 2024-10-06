@@ -1,10 +1,7 @@
 import QueryProvider from "@/components/QueryProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { initializeMixedContent } from "../../meta-config";
 import "../globals.css";
-
-initializeMixedContent();
 
 const inter = Inter({ subsets: ["latin"] });
 
