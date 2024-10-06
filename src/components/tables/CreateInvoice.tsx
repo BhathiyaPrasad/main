@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 
 
 interface InvoiceItemRowProps {
-    row: InvoiceItem;
+    row: any;
     i: number;
     updateInvoiceItems: (...args: any[]) => void;
     removeInvoiceItems: (...args: any[]) => void;
@@ -179,7 +179,7 @@ const InvoiceItemRow: React.FC<InvoiceItemRowProps> = ({
     const lineTotal = stock && row.qty ? (Number(row.qty) * Number(stock.sellingPrice)).toFixed(2) : '0.00';
     const calculateDiscountedTotal = () => {
         let discountAmount = 0;
-        const sellingPrice = Number(stock.sellingPrice);
+        const sellingPrice = stock ? Number(stock.sellingPrice) : 0;
         const quantity = Number(row.qty);
         const discountValue = Number(inputDiscount);
 
@@ -268,7 +268,7 @@ const InvoiceItemRow: React.FC<InvoiceItemRowProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            {variantSets && variantSets[0]?.map((item) => (
+                            {variantSets.map((item) => (
                                 <SelectItem key={item.id} value={item.id}>
                                     {item.name}
                                 </SelectItem>

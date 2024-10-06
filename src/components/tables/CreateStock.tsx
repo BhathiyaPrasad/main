@@ -15,7 +15,7 @@ import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface GRNItemRowProps {
-  row: GRNItem;
+  row: any;
   i: number;
   updateGRNItems: (...args: any[]) => void;
   removeGRNItems: (...args: any[]) => void;

@@ -8,7 +8,7 @@ export const fetchVariants = async (categoryId:string) => {
       if (response.data && response.data.data) {
         const { results, extras  } = response.data.data;
         
-        return { variants: results, total: extras.total,   variantsSet: results.map(item => item.variant || [])};
+        return { variants: results, total: extras.total,   variantsSet: results.map((item: any) => item.variant || [])};
       } else {
         console.error('No data in the response:', response.data);
         return { variants: [], total: 0 , variantsSet: [] };
