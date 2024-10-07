@@ -21,6 +21,8 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
+ENV PORT 3000
+
 COPY --from=builder /app/ /app/
 
 CMD ["npm", "start"]
