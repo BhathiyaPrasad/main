@@ -1,9 +1,10 @@
 // src/lib/axios.ts
+import { environment } from "@/config/env.config";
 import axios from "axios";
 
 // Create a central axios instance with default settings
 const apiClient = axios.create({
-  baseURL: "http://localhost:8000/v1", // Set your API base URL
+  baseURL: environment.apiURL, // Set your API base URL
   timeout: 10000, // Optional timeout (in ms)
   withCredentials: true,
 });
