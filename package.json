@@ -1,13 +1,17 @@
 {
-  "name": "package.json",
-  "version": "1.0.0",
-  "description": "This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
+  "name": "asiri-auto-wheels-pos-client",
+  "description": "Asiri Auto Wheels POS - Client",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "next dev",
+    "dev": "npm run env:copy:dev && next dev",
+    "dev:qa": "npm run  env:copy:qa && next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "env:copy:dev": "cp .env.development .env.local",
+    "env:copy:qa": "cp .env.qa .env.local",
+    "env:copy:prod": "cp .env.production .env.local"
   },
   "author": "",
   "license": "ISC",
