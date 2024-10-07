@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npm run env:copy:dev && next dev -p $PORT",
-    "dev:qa": "npm run  env:copy:qa && next dev -p $PORT",
+    "dev": "npm run env:copy:dev && next dev",
+    "dev:qa": "npm run  env:copy:qa && next dev",
     "build": "next build",
-    "start": "next start -p $PORT",
+    "start": "next start",
     "env:copy:dev": "cp .env.development .env.local",
     "env:copy:qa": "cp .env.qa .env.local",
     "env:copy:prod": "cp .env.production .env.local"
